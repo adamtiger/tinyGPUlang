@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(CUDA 12.0 REQUIRED)
-set(CUDA_LIBRARIES PUBLIC ${CUDA_LIBRARIES})     # To avoid "target must be either all-keyword or all-plain error" 
+set(CUDA_LIBRARIES PUBLIC ${CUDA_LIBRARIES} )     # To avoid "target must be either all-keyword or all-plain error" 
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
