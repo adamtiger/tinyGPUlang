@@ -32,14 +32,14 @@ set (SOURCES
     ${TGLC_ROOT}/compiler.cpp
     ${TGLC_ROOT}/core.cpp
 	${TGLC_ROOT}/parser.cpp
-	${TGLC_ROOT}/ir.cpp
+	${TGLC_ROOT}/ast.cpp
 	${TGLC_ROOT}/codegen.cpp
 )
 
 set (HEADERS
 	${TGLC_ROOT}/core.hpp
 	${TGLC_ROOT}/parser.hpp
-	${TGLC_ROOT}/ir.hpp
+	${TGLC_ROOT}/ast.hpp
 	${TGLC_ROOT}/codegen.hpp
 )
 
