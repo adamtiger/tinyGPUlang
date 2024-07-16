@@ -95,7 +95,7 @@ struct KernelNode : public ASTNode
     std::vector<VariableNodePtr> arguments;
     VariableNodePtr return_value;  // nullptr if void
 
-    std::vector<ASTNodePtr> body;  // set of expressions
+    std::vector<ASTNodePtr> body;  // set of expressions, topological ordering
 
     explicit KernelNode(
         const std::string& name,
