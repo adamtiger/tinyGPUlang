@@ -118,20 +118,19 @@ struct KernelCallNode : public ASTNode
 {
     KernelNodePtr kernel;
     std::vector<VariableNodePtr> arguments;
-    VariableNodePtr return_value;  // nullptr if void
 
     explicit KernelCallNode(
         const KernelNodePtr kernel,
-        const std::vector<VariableNodePtr>& arguments,
-        const VariableNodePtr return_value);
+        const std::vector<VariableNodePtr>& arguments);
 
     virtual void accept(ASTVisitorPtr visitor) override;
 
     static ASTNodePtr create_kernelcall_node(
         const KernelNodePtr kernel,
-        const std::vector<VariableNodePtr>& arguments,
-        const VariableNodePtr return_value);
+        const std::vector<VariableNodePtr>& arguments);
 };
+
+using KernelCallNodePtr = std::shared_ptr<KernelCallNode>;
 
 // arithmetic nodes (binary ops.)
 struct BinaryNode : ASTNode
@@ -210,6 +209,8 @@ struct AssignmentNode : ASTNode  // d = a + b;
     static ASTNodePtr create_assignment_node(const ASTNodePtr trg, const ASTNodePtr src);
 };
 
+using AssignmentNodePtr = std::shared_ptr<AssignmentNode>;
+
 struct AliasNode : ASTNode  // var d = a + b;
 {
     ASTNodePtr src;
@@ -218,6 +219,19 @@ struct AliasNode : ASTNode  // var d = a + b;
     virtual void accept(ASTVisitorPtr visitor) override;
     static ASTNodePtr create_alias_node(const ASTNodePtr src);
 };
+
+using AliasNodePtr = std::shared_ptr<AliasNode>;
+
+struct ReturnNode : ASTNode  // return d;
+{
+    ASTNodePtr return_value;
+
+    explicit ReturnNode(const ASTNodePtr return_value);
+    virtual void accept(ASTVisitorPtr visitor) override;
+    static ASTNodePtr create_node(const ASTNodePtr return_value);
+};
+
+using ReturnNodePtr = std::shared_ptr<ReturnNode>;
 
 // defintion of visitor base class
 class ASTVisitor
@@ -241,5 +255,6 @@ public:
 
     virtual void apply(AssignmentNode& node) = 0;
     virtual void apply(AliasNode& node) = 0;
+    virtual void apply(ReturnNode& node) = 0;
 };
 

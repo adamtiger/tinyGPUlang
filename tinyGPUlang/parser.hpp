@@ -20,8 +20,10 @@ protected:
     static std::unordered_set<char> comma_chars;
     static std::unordered_set<char> arithmetic_chars;
     static std::unordered_set<std::string> builtin_kernel_names;
+    static std::unordered_map<char, int> arithmetic_precedences;
     std::unordered_map<std::string, KernelNodePtr> defined_global_kernels;
     std::unordered_map<std::string, KernelNodePtr> defined_device_kernels;
+    std::unordered_map<std::string, ASTNodePtr> defined_nodes;
 
     /**
      * Reads all the text from the source file.
@@ -51,5 +53,46 @@ protected:
     void parse_kernel_body(KernelNodePtr kernel, const int start_line, const int start_pos, int& next_line, int& next_pos);
 
     VariableNodePtr parse_variable_type(const int start_line, const int start_pos, int& next_pos);
+    
+    /**
+     * @param start_pos shows the position at the beginning of the alias name.
+     */
+    AliasNodePtr parse_alias_node( 
+        const std::string& line, 
+        const int start_pos, 
+        int& next_pos);
 
+    /**
+     * @param start_pos shows the position at the beginning of the variable name.
+     */
+    ReturnNodePtr parse_return_node( 
+        const std::string& line, 
+        const int start_pos, 
+        int& next_pos);
+
+    /**
+     * @param start_pos shows the position at the beginning of the arithmetic ops.
+     */
+    AssignmentNodePtr parse_assignment_node(
+        const std::string& var_name, 
+        const std::string& line, 
+        const int start_pos, 
+        int& next_pos);
+    
+    /**
+     * @param start_pos shows the position at the beginning of the args.
+     */
+    ASTNodePtr parse_kernel_call_node(
+        const std::string& kernel_name, 
+        const std::string& line, 
+        const int start_pos, 
+        int& next_pos);
+
+    /**
+     * @param start_pos shows the position at the beginning of the args.
+     */
+    ASTNodePtr parse_arithmetic_node( 
+        const std::string& line, 
+        const int start_pos, 
+        int& next_pos);
 };

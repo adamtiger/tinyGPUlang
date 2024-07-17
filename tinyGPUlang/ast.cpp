@@ -85,11 +85,9 @@ ASTNodePtr KernelNode::create_kernel_node(
 
 KernelCallNode::KernelCallNode(
     const KernelNodePtr kernel,
-    const std::vector<VariableNodePtr>& arguments,
-    const VariableNodePtr return_value
+    const std::vector<VariableNodePtr>& arguments
     ) : ASTNode(), kernel(kernel), 
-        arguments(arguments),
-        return_value(return_value)
+        arguments(arguments)
 {
 }
 
@@ -100,10 +98,9 @@ void KernelCallNode::accept(ASTVisitorPtr visitor)
 
 ASTNodePtr KernelCallNode::create_kernelcall_node(
     const KernelNodePtr kernel, 
-    const std::vector<VariableNodePtr>& arguments,
-    const VariableNodePtr return_value)
+    const std::vector<VariableNodePtr>& arguments)
 {
-    return std::make_shared<KernelCallNode>(kernel, arguments, return_value);
+    return std::make_shared<KernelCallNode>(kernel, arguments);
 }
 
 
@@ -249,4 +246,19 @@ void AliasNode::accept(ASTVisitorPtr visitor)
 ASTNodePtr AliasNode::create_alias_node(const ASTNodePtr src)
 {
     return std::make_shared<AliasNode>(src);
+}
+
+
+ReturnNode::ReturnNode(const ASTNodePtr return_value) : ASTNode(), return_value(return_value)
+{
+}
+
+void ReturnNode::accept(ASTVisitorPtr visitor)
+{
+    visitor->apply(*this);
+}
+
+ASTNodePtr ReturnNode::create_node(const ASTNodePtr return_value)
+{
+    return std::make_shared<ReturnNode>(return_value);
 }
