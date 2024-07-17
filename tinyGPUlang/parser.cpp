@@ -96,6 +96,8 @@ TGLparser::TGLparser(const std::string& path_to_tgl)
         }
         
     }
+
+    std::cout << kernel->body.size() << std::endl;
 }
 
 std::vector<KernelNodePtr> TGLparser::get_all_global_kernel() const
@@ -592,7 +594,13 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
     // getting node for var name
     if (defined_nodes.contains(kernel_name))
     {
-        auto kernel_node = defined_nodes.at(kernel_name);
+        auto kernel_node = std::dynamic_pointer_cast<KernelNode>(defined_nodes.at(kernel_name));
+
+        if (!kernel_node)
+        {
+            std::cout << "Expected a kernel node " << kernel_name << std::endl;
+            exit(1);
+        }
 
         // process the arguments
         std::vector<VariableNodePtr> arguments;
@@ -704,17 +712,9 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
                 auto node = parse_kernel_call_node(expr_name, line, current_pos, current_pos);
                 ast_nodes.push_back(node);
             }
-            else  // has to be a variable
+            else  // has to be a variable (or an alias)
             {
                 auto node = defined_nodes.at(expr_name);
-                // check if variable
-                auto vnode = std::dynamic_pointer_cast<VariableNode>(node);
-                if (vnode == nullptr)
-                {
-                    std::cout << "Expected a variable" << std::endl;
-                    exit(1);
-                }
-                // save operand
                 ast_nodes.push_back(node);
             }
         }
