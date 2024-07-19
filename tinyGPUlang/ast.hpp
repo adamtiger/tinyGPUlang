@@ -3,10 +3,10 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 // fprward declaration
 class ASTVisitor;
-using ASTVisitorPtr = std::shared_ptr<ASTVisitor>;
 
 // AST base
 struct ASTNode
@@ -14,7 +14,7 @@ struct ASTNode
     int ast_id;  // unique id
 
     explicit ASTNode();
-    virtual void accept(ASTVisitorPtr visitor) = 0;
+    virtual void accept(ASTVisitor& visitor) = 0;
 };
 
 using ASTNodePtr = std::shared_ptr<ASTNode>;
@@ -26,11 +26,15 @@ enum class VariableType
     TENSOR
 };
 
+std::ostream& operator<<(std::ostream& os, const VariableType var_type);
+
 enum class DataType
 {
     FLOAT32,
     FLOAT16
 };
+
+std::ostream& operator<<(std::ostream& os, const DataType var_type);
 
 struct VariableNode : public ASTNode
 {
@@ -51,7 +55,7 @@ struct ScalarNode : public VariableNode
         const DataType dtype, 
         const std::string& name);
 
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
 
     static ASTNodePtr create_scalar_node(
         const VariableType vtype, 
@@ -69,7 +73,7 @@ struct TensorNode : public VariableNode
         const std::string& name,
         const std::vector<int>& shape);
 
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
 
     static ASTNodePtr create_tensor_node(
         const VariableType vtype, 
@@ -88,6 +92,8 @@ enum class KernelScope
     DEVICE
 };
 
+std::ostream& operator<<(std::ostream& os, const KernelScope scope);
+
 struct KernelNode : public ASTNode
 {
     KernelScope scope;
@@ -103,7 +109,7 @@ struct KernelNode : public ASTNode
         const std::vector<VariableNodePtr>& arguments,
         const VariableNodePtr return_value);
 
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
 
     static ASTNodePtr create_kernel_node(
         const std::string& name,
@@ -123,7 +129,7 @@ struct KernelCallNode : public ASTNode
         const KernelNodePtr kernel,
         const std::vector<VariableNodePtr>& arguments);
 
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
 
     static ASTNodePtr create_kernelcall_node(
         const KernelNodePtr kernel,
@@ -144,28 +150,28 @@ struct BinaryNode : ASTNode
 struct AddNode : BinaryNode
 {
     explicit AddNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_add_node(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
 
 struct SubNode : BinaryNode
 {
     explicit SubNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_sub_node(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
 
 struct MulNode : BinaryNode
 {
     explicit MulNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_mul_node(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
 
 struct DivNode : BinaryNode
 {
     explicit DivNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_div_node(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
 
@@ -180,21 +186,21 @@ struct UnaryNode : ASTNode
 struct SqrtNode : UnaryNode
 {
     explicit SqrtNode(const ASTNodePtr x);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_sqrt_node(const ASTNodePtr x);
 };
 
 struct Log2Node : UnaryNode
 {
     explicit Log2Node(const ASTNodePtr x);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_log2_node(const ASTNodePtr x);
 };
 
 struct Exp2Node : UnaryNode
 {
     explicit Exp2Node(const ASTNodePtr x);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_exp2_node(const ASTNodePtr x);
 };
 
@@ -205,7 +211,7 @@ struct AssignmentNode : ASTNode  // d = a + b;
     ASTNodePtr src;
 
     explicit AssignmentNode(const ASTNodePtr trg, const ASTNodePtr src);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_assignment_node(const ASTNodePtr trg, const ASTNodePtr src);
 };
 
@@ -216,7 +222,7 @@ struct AliasNode : ASTNode  // var d = a + b;
     ASTNodePtr src;
 
     explicit AliasNode(const ASTNodePtr src);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_alias_node(const ASTNodePtr src);
 };
 
@@ -227,7 +233,7 @@ struct ReturnNode : ASTNode  // return d;
     ASTNodePtr return_value;
 
     explicit ReturnNode(const ASTNodePtr return_value);
-    virtual void accept(ASTVisitorPtr visitor) override;
+    virtual void accept(ASTVisitor& visitor) override;
     static ASTNodePtr create_node(const ASTNodePtr return_value);
 };
 
@@ -258,3 +264,34 @@ public:
     virtual void apply(ReturnNode& node) = 0;
 };
 
+
+// printer visitor (to visualize the AST)
+class ASTPrinter : public ASTVisitor
+{
+public:
+    explicit ASTPrinter();
+    void save_into_file(const std::string& out_path) const;
+    void reset();
+
+    virtual void apply(KernelNode& node);
+    virtual void apply(KernelCallNode& node);
+    
+    virtual void apply(ScalarNode& node);
+    virtual void apply(TensorNode& node);
+
+    virtual void apply(AddNode& node);
+    virtual void apply(SubNode& node);
+    virtual void apply(MulNode& node);
+    virtual void apply(DivNode& node);
+
+    virtual void apply(SqrtNode& node);
+    virtual void apply(Log2Node& node);
+    virtual void apply(Exp2Node& node);
+
+    virtual void apply(AssignmentNode& node);
+    virtual void apply(AliasNode& node);
+    virtual void apply(ReturnNode& node);
+
+private:
+    std::string ast_as_string; 
+};

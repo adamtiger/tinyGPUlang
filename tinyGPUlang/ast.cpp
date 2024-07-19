@@ -1,10 +1,42 @@
 #include "ast.hpp"
 #include "core.hpp"
+#include <fstream>
+#include <sstream>
 
 ASTNode::ASTNode()
 {
     ast_id = GlobalUUIDGenerator::generate_uuid();
 }
+
+
+std::ostream& operator<<(std::ostream& os, const VariableType var_type)
+{
+    if (var_type == VariableType::SCALAR)
+    {
+        os << "SCALAR";
+    }
+    else
+    {
+        os << "TENSOR";
+    }
+
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const DataType var_type)
+{
+    if (var_type == DataType::FLOAT32)
+    {
+        os << "FLOAT32";
+    }
+    else
+    {
+        os << "FLOAT16";
+    }
+
+    return os;
+}
+
 
 VariableNode::VariableNode(
     const VariableType vtype, const DataType dtype, const std::string& name
@@ -19,9 +51,9 @@ ScalarNode::ScalarNode(
 {
 }
 
-void ScalarNode::accept(ASTVisitorPtr visitor)
+void ScalarNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr ScalarNode::create_scalar_node(
@@ -42,9 +74,9 @@ TensorNode::TensorNode(
 {
 }
 
-void TensorNode::accept(ASTVisitorPtr visitor)
+void TensorNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr TensorNode::create_tensor_node(
@@ -54,6 +86,21 @@ ASTNodePtr TensorNode::create_tensor_node(
     const std::vector<int>& shape)
 {
     return std::make_shared<TensorNode>(vtype, dtype, name, shape);   
+}
+
+
+std::ostream& operator<<(std::ostream& os, const KernelScope scope)
+{
+    if (scope == KernelScope::GLOBAL)
+    {
+        os << "GLOBAL";
+    }
+    else
+    {
+        os << "DEVICE";
+    }
+
+    return os;
 }
 
 
@@ -68,9 +115,9 @@ KernelNode::KernelNode(
 {
 }
 
-void KernelNode::accept(ASTVisitorPtr visitor)
+void KernelNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr KernelNode::create_kernel_node(
@@ -91,9 +138,9 @@ KernelCallNode::KernelCallNode(
 {
 }
 
-void KernelCallNode::accept(ASTVisitorPtr visitor)
+void KernelCallNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr KernelCallNode::create_kernelcall_node(
@@ -113,9 +160,9 @@ AddNode::AddNode(const ASTNodePtr lhs, const ASTNodePtr rhs) : BinaryNode(lhs, r
 {
 }
 
-void AddNode::accept(ASTVisitorPtr visitor)
+void AddNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr AddNode::create_add_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
@@ -128,9 +175,9 @@ SubNode::SubNode(const ASTNodePtr lhs, const ASTNodePtr rhs) : BinaryNode(lhs, r
 {
 }
 
-void SubNode::accept(ASTVisitorPtr visitor)
+void SubNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr SubNode::create_sub_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
@@ -143,9 +190,9 @@ MulNode::MulNode(const ASTNodePtr lhs, const ASTNodePtr rhs) : BinaryNode(lhs, r
 {
 }
 
-void MulNode::accept(ASTVisitorPtr visitor)
+void MulNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr MulNode::create_mul_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
@@ -158,9 +205,9 @@ DivNode::DivNode(const ASTNodePtr lhs, const ASTNodePtr rhs) : BinaryNode(lhs, r
 {
 }
 
-void DivNode::accept(ASTVisitorPtr visitor)
+void DivNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr DivNode::create_div_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
@@ -178,9 +225,9 @@ SqrtNode::SqrtNode(const ASTNodePtr x) : UnaryNode(x)
 {
 }
 
-void SqrtNode::accept(ASTVisitorPtr visitor)
+void SqrtNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr SqrtNode::create_sqrt_node(const ASTNodePtr x)
@@ -193,9 +240,9 @@ Log2Node::Log2Node(const ASTNodePtr x) : UnaryNode(x)
 {
 }
 
-void Log2Node::accept(ASTVisitorPtr visitor)
+void Log2Node::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr Log2Node::create_log2_node(const ASTNodePtr x)
@@ -208,9 +255,9 @@ Exp2Node::Exp2Node(const ASTNodePtr x) : UnaryNode(x)
 {
 }
 
-void Exp2Node::accept(ASTVisitorPtr visitor)
+void Exp2Node::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr Exp2Node::create_exp2_node(const ASTNodePtr x)
@@ -223,9 +270,9 @@ AssignmentNode::AssignmentNode(const ASTNodePtr trg, const ASTNodePtr src) : AST
 {
 }
 
-void AssignmentNode::accept(ASTVisitorPtr visitor)
+void AssignmentNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr AssignmentNode::create_assignment_node(const ASTNodePtr trg, const ASTNodePtr src)
@@ -238,9 +285,9 @@ AliasNode::AliasNode(const ASTNodePtr src) : ASTNode(), src(src)
 {
 }
 
-void AliasNode::accept(ASTVisitorPtr visitor)
+void AliasNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr AliasNode::create_alias_node(const ASTNodePtr src)
@@ -253,12 +300,130 @@ ReturnNode::ReturnNode(const ASTNodePtr return_value) : ASTNode(), return_value(
 {
 }
 
-void ReturnNode::accept(ASTVisitorPtr visitor)
+void ReturnNode::accept(ASTVisitor& visitor)
 {
-    visitor->apply(*this);
+    visitor.apply(*this);
 }
 
 ASTNodePtr ReturnNode::create_node(const ASTNodePtr return_value)
 {
     return std::make_shared<ReturnNode>(return_value);
+}
+
+// printer impl.
+
+ASTPrinter::ASTPrinter()
+{
+}
+
+void ASTPrinter::save_into_file(const std::string& out_path) const
+{
+    std::ofstream out(out_path);
+    out << ast_as_string;
+}
+
+void ASTPrinter::reset()
+{
+    ast_as_string.clear();
+}
+
+void ASTPrinter::apply(KernelNode& node)
+{
+    std::stringstream ss;
+
+    ss << "-- KernelNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  name:  " << node.name << "\n";
+    ss << "  scope: " << node.scope << "\n";
+
+    ss << "  args:  ";
+    for (auto& arg_ast : node.arguments)
+    {
+        ss << arg_ast->ast_id << ", ";
+    }
+    ss << "\n";
+    
+    if (node.return_value)
+    {
+        ss << "  ret:   " << node.return_value->ast_id << "\n";
+    }
+    else
+    {
+        ss << "  ret:   " << "void" << "\n";
+    }
+
+    ss << "  body:  ";
+    for (auto& body_ast : node.body)
+    {
+        ss << body_ast->ast_id << ", ";
+    }
+    ss << "\n";
+
+    ast_as_string.append(ss.str());
+
+
+    // recursive call to the ast nodes inside the kernel
+    for (auto& arg_ast : node.arguments)
+    {
+        arg_ast->accept(*this);
+    }
+
+    node.return_value->accept(*this);
+
+    for (auto& body_ast : node.body)
+    {
+        body_ast->accept(*this);
+    }
+}
+
+void ASTPrinter::apply(KernelCallNode &node)
+{
+}
+
+void ASTPrinter::apply(ScalarNode &node)
+{
+}
+
+void ASTPrinter::apply(TensorNode &node)
+{
+}
+
+void ASTPrinter::apply(AddNode &node)
+{
+}
+
+void ASTPrinter::apply(SubNode &node)
+{
+}
+
+void ASTPrinter::apply(MulNode &node)
+{
+}
+
+void ASTPrinter::apply(DivNode &node)
+{
+}
+
+void ASTPrinter::apply(SqrtNode &node)
+{
+}
+
+void ASTPrinter::apply(Log2Node &node)
+{
+}
+
+void ASTPrinter::apply(Exp2Node &node)
+{
+}
+
+void ASTPrinter::apply(AssignmentNode &node)
+{
+}
+
+void ASTPrinter::apply(AliasNode &node)
+{
+}
+
+void ASTPrinter::apply(ReturnNode &node)
+{
 }

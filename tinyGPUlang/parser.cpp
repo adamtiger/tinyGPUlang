@@ -72,42 +72,22 @@ TGLparser::TGLparser(const std::string& path_to_tgl)
     int next_line;
     int next_pos;
     parse_next_kernel(0, 0, next_line, next_pos);
-
-    auto kernel = defined_global_kernels["calc_mse"];
-
-    std::cout << kernel->name << std::endl;
-    std::cout << (int)kernel->scope << std::endl;
-
-    for (auto v : kernel->arguments)
-    {
-        std::cout << v->name << std::endl;
-        std::cout << (int)v->dtype << std::endl;
-        std::cout << (int)v->vtype << std::endl;
-        
-        if (v->vtype == VariableType::TENSOR)
-        {
-            auto shape = std::static_pointer_cast<TensorNode>(v)->shape;
-
-            for (int s : shape)
-            {
-                std::cout << s << " ";
-            }
-            std::cout << std::endl;
-        }
-        
-    }
-
-    std::cout << kernel->body.size() << std::endl;
 }
 
 std::vector<KernelNodePtr> TGLparser::get_all_global_kernel() const
 {
-    return {};
+    std::vector<KernelNodePtr> kernels;
+    for (auto& n_k : defined_global_kernels)
+    {
+        kernels.push_back(n_k.second);
+    }
+
+    return kernels;
 }
 
 KernelNodePtr TGLparser::get_global_kernel(const std::string& kernel_name) const
 {
-    return nullptr;
+    return defined_global_kernels.at(kernel_name);
 }
 
 // helper functions
