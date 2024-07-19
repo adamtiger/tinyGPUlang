@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <unordered_set>
 
 // fprward declaration
 class ASTVisitor;
@@ -293,5 +294,7 @@ public:
     virtual void apply(ReturnNode& node);
 
 private:
-    std::string ast_as_string; 
+    std::string ast_as_string;
+
+    std::unordered_set<int> already_printed;
 };

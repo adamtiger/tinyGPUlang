@@ -329,6 +329,9 @@ void ASTPrinter::reset()
 
 void ASTPrinter::apply(KernelNode& node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
     std::stringstream ss;
 
     ss << "-- KernelNode \n";
@@ -359,6 +362,7 @@ void ASTPrinter::apply(KernelNode& node)
     }
     ss << "\n";
 
+    ss << "\n";  // line break for readibility
     ast_as_string.append(ss.str());
 
 
@@ -368,62 +372,294 @@ void ASTPrinter::apply(KernelNode& node)
         arg_ast->accept(*this);
     }
 
-    node.return_value->accept(*this);
+    if (node.return_value)
+    {
+        node.return_value->accept(*this);
+    }
 
     for (auto& body_ast : node.body)
     {
         body_ast->accept(*this);
     }
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(KernelCallNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- KernelCallNode \n";
+    ss << "  id:        " << node.ast_id << "\n";
+    ss << "  kernel:    " << node.kernel->ast_id << "\n";
+    
+    ss << "  args:  ";
+    for (auto& arg_ast : node.arguments)
+    {
+        ss << arg_ast->ast_id << ", ";
+    }
+    ss << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    // recursive call to the ast nodes inside the kernel
+    for (auto& arg_ast : node.arguments)
+    {
+        arg_ast->accept(*this);
+    }
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(ScalarNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- ScalarNode \n";
+    ss << "  id:        " << node.ast_id << "\n";
+    ss << "  name:      " << node.name << "\n";
+    ss << "  var_type:  " << node.vtype << "\n";
+    ss << "  data_type: " << node.dtype << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(TensorNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- TensorNode \n";
+    ss << "  id:        " << node.ast_id << "\n";
+    ss << "  name:      " << node.name << "\n";
+    ss << "  var_type:  " << node.vtype << "\n";
+    ss << "  data_type: " << node.dtype << "\n";
+
+    ss << "  shape:     ";
+    for (int s : node.shape)
+    {
+        ss << s << ", ";
+    }
+    ss << "\n";
+
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(AddNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- AddNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  lhs:   " << node.lhs->ast_id << "\n";
+    ss << "  rhs:   " << node.rhs ->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.lhs->accept(*this);
+    node.rhs->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(SubNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- SubNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  lhs:   " << node.lhs->ast_id << "\n";
+    ss << "  rhs:   " << node.rhs ->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.lhs->accept(*this);
+    node.rhs->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(MulNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- MulNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  lhs:   " << node.lhs->ast_id << "\n";
+    ss << "  rhs:   " << node.rhs ->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.lhs->accept(*this);
+    node.rhs->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(DivNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- DivNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  lhs:   " << node.lhs->ast_id << "\n";
+    ss << "  rhs:   " << node.rhs ->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.lhs->accept(*this);
+    node.rhs->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(SqrtNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- SqrtNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  x:     " << node.x->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.x->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(Log2Node &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- Log2Node \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  x:     " << node.x->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.x->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(Exp2Node &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- Exp2Node \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  x:     " << node.x->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.x->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(AssignmentNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- AssignmentNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  src:   " << node.src->ast_id << "\n";
+    ss << "  trg:   " << node.trg->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.src->accept(*this);
+    node.trg->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(AliasNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- AliasNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  src:   " << node.src->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.src->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }
 
 void ASTPrinter::apply(ReturnNode &node)
 {
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- ReturnNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+
+    if (node.return_value)
+        ss << "  ret:   " << node.return_value->ast_id << "\n";
+    else
+        ss << "  ret:   " << "void" << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.return_value->accept(*this);
+
+    already_printed.insert(node.ast_id);
 }

@@ -6,7 +6,7 @@ int main(int argc, char** argv)
 
     std::cout << "TinyGPUlang compiler \n";
 
-    std::string path_tgl = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\add_tensors.tgl";
+    std::string path_tgl = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\complex.tgl";
     TGLparser parser(path_tgl);
     auto kernels = parser.get_all_global_kernel();
 

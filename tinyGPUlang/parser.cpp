@@ -685,11 +685,11 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
         {
             std::string expr_name = next_token;
 
-            current_pos = parse_next_token(next_token, line, current_pos);
+            int next_pos = parse_next_token(next_token, line, current_pos);
 
             if (next_token == "(")  // has to be a function
             {
-                auto node = parse_kernel_call_node(expr_name, line, current_pos, current_pos);
+                auto node = parse_kernel_call_node(expr_name, line, next_pos, current_pos);
                 ast_nodes.push_back(node);
             }
             else  // has to be a variable (or an alias)
@@ -749,8 +749,9 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
         ast_nodes.erase(ast_nodes.begin() + best_op_idx + 1);
         ast_nodes[best_op_idx] = subnode;
     }
-
-    node = ast_nodes[0];  // last remaining node is the root
+    
+    if (ast_nodes.size() > 0)  // otherwise it is a void return
+        node = ast_nodes[0];   // last remaining node is the root
 
     // return
     next_pos = current_pos;
