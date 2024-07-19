@@ -53,7 +53,7 @@ if (UNIX AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 add_executable(tglc ${SOURCES} ${HEADERS})
-target_include_directories(tglc PRIVATE ${TGLC_INCLUDE_DIR})
+target_include_directories(tglc PRIVATE ${TGLC_INCLUDE_DIR} ${LLVM_INCLUDE_DIRS})
 
 if (UNIX)
     target_compile_options(tglc PRIVATE -fPIC -fopenmp)

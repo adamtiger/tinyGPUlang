@@ -44,7 +44,7 @@ void execute_cuda_kernel(const KernelInfo& kernel_info)
     // Create module for object
     checkCudaErrors(cuModuleLoadDataEx(&cudaModule, str.c_str(), 0, 0, 0));
 
-    // Get kernel function  // TODO: msvc generates mangled names, llvm backend will be different
+    // Get kernel function
     checkCudaErrors(cuModuleGetFunction(&function, cudaModule, kernel_info.kernel_name.c_str()));
     
     // create argument params for the kernel
@@ -64,7 +64,7 @@ void execute_cuda_kernel(const KernelInfo& kernel_info)
             auto& devBufferVar = device_ptrs[device_ptrs.size() - 1];
             checkCudaErrors(cuMemAlloc(&devBufferVar, data_size));
 
-            if (tvar->is_input > 0)
+            if (tvar->is_input)
             {
                 checkCudaErrors(cuMemcpyHtoD(devBufferVar, tvar->tensor_data.data(), data_size));
             }
