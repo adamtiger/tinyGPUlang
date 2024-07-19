@@ -3,7 +3,6 @@
 
 int main(int argc, char** argv)
 {
-
     std::cout << "TinyGPUlang compiler \n";
 
     std::string path_tgl = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\complex.tgl";

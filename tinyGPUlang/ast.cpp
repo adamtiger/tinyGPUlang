@@ -281,7 +281,7 @@ ASTNodePtr AssignmentNode::create_assignment_node(const ASTNodePtr trg, const AS
 }
 
 
-AliasNode::AliasNode(const ASTNodePtr src) : ASTNode(), src(src)
+AliasNode::AliasNode(const std::string& alias_name, const ASTNodePtr src) : ASTNode(), name(alias_name), src(src)
 {
 }
 
@@ -290,9 +290,9 @@ void AliasNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr AliasNode::create_alias_node(const ASTNodePtr src)
+ASTNodePtr AliasNode::create_alias_node(const std::string& alias_name, const ASTNodePtr src)
 {
-    return std::make_shared<AliasNode>(src);
+    return std::make_shared<AliasNode>(alias_name, src);
 }
 
 
@@ -407,6 +407,8 @@ void ASTPrinter::apply(KernelCallNode &node)
     ast_as_string.append(ss.str());
 
     // recursive call to the ast nodes inside the kernel
+    node.kernel->accept(*this);
+
     for (auto& arg_ast : node.arguments)
     {
         arg_ast->accept(*this);
@@ -631,6 +633,7 @@ void ASTPrinter::apply(AliasNode &node)
 
     ss << "-- AliasNode \n";
     ss << "  id:    " << node.ast_id << "\n";
+    ss << "  name:  " << node.name << "\n";
     ss << "  src:   " << node.src->ast_id << "\n";
     
     ss << "\n";
@@ -659,7 +662,8 @@ void ASTPrinter::apply(ReturnNode &node)
     ss << "\n";
     ast_as_string.append(ss.str());
 
-    node.return_value->accept(*this);
+    if (node.return_value)
+        node.return_value->accept(*this);
 
     already_printed.insert(node.ast_id);
 }

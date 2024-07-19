@@ -220,11 +220,12 @@ using AssignmentNodePtr = std::shared_ptr<AssignmentNode>;
 
 struct AliasNode : ASTNode  // var d = a + b;
 {
+    std::string name;
     ASTNodePtr src;
 
-    explicit AliasNode(const ASTNodePtr src);
+    explicit AliasNode(const std::string& alias_name, const ASTNodePtr src);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_alias_node(const ASTNodePtr src);
+    static ASTNodePtr create_alias_node(const std::string& alias_name, const ASTNodePtr src);
 };
 
 using AliasNodePtr = std::shared_ptr<AliasNode>;

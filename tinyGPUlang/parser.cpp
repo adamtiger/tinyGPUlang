@@ -57,21 +57,16 @@ std::unordered_map<char, int> TGLparser::arithmetic_precedences =
 TGLparser::TGLparser(const std::string& path_to_tgl)
 {
     read_all_lines_from_tgl(path_to_tgl);
-
-    for (auto& line : all_lines)
-    {
-        int start_pos = 0;
-        std::string ntoken = "start";
-        while (ntoken != "")
-        {
-            start_pos = parse_next_token(ntoken, line, start_pos);
-            std::cout << ntoken << "\n";
-        }
-    }
     
-    int next_line;
-    int next_pos;
-    parse_next_kernel(0, 0, next_line, next_pos);
+    int current_line = 0;
+    int current_pos = 0;
+    while (current_line < all_lines.size())
+    {
+        parse_next_kernel(current_line, current_pos, current_line, current_pos);
+    }
+
+    std::cout << "Source file was parsed successfully " << path_to_tgl << "\n";
+    std::cout << "Parsed " << defined_global_kernels.size() << " global kernels" << std::endl;
 }
 
 std::vector<KernelNodePtr> TGLparser::get_all_global_kernel() const
@@ -104,11 +99,7 @@ void TGLparser::read_all_lines_from_tgl(const std::string& path_to_tgl)
             std::string line;
             std::getline(tgl_file, line);
             all_lines.push_back(line);
-
-            //std::cout << line << "\n";
         }
-
-        std::cout << "Source file was processed successfully " << path_to_tgl << std::endl;
     }
     else
     {
@@ -195,7 +186,10 @@ void TGLparser::parse_next_kernel(const int start_line, const int start_pos, int
         }
 
         if (!found_func)
+        {
             current_line += 1;
+            current_pos = 0;
+        }
     }
 
     if (!found_func)  // no more function can be found
@@ -267,17 +261,18 @@ KernelNodePtr TGLparser::parse_kernel_header(const int start_line, const int sta
     }
 
     // parse the return type
+    int prev_pos = current_pos;
     current_pos = parse_next_token(next_token, cline, current_pos);
 
     VariableNodePtr return_var_type = nullptr; 
     if (next_token != "void")
     {
-        if (next_token != "f32" || next_token != "f16")
+        if (next_token != "f32" && next_token != "f16")
         {
             std::cout << "Wrong variable type " << next_token << "\n";
         }
 
-        return_var_type = parse_variable_type(current_line, current_pos - 3, current_pos);  // f32 or f16;
+        return_var_type = parse_variable_type(current_line, prev_pos, current_pos);  // f32 or f16;
     }
 
     // parse the function name
@@ -292,14 +287,17 @@ KernelNodePtr TGLparser::parse_kernel_header(const int start_line, const int sta
 
     if (start_parantheses != "(")
     {
-        std::cout << "Expected a ( character instead of " << next_token << "\n";
+        std::cout << "Expected a ( character instead of " << start_parantheses << "\n";
     }
 
     while (next_token != ")")
     {
-        auto var_type = parse_variable_type(current_line, current_pos, current_pos);
-        current_pos = parse_next_token(next_token, cline, current_pos);
-        args.push_back(var_type);
+        auto var = parse_variable_type(current_line, current_pos, current_pos);
+        current_pos = parse_next_token(next_token, cline, current_pos);  // read the var. name
+        var->name = next_token;
+        current_pos = parse_next_token(next_token, cline, current_pos);  // read delimiter
+        args.push_back(var);
+        defined_nodes.insert({var->name, var});
     }
 
     // return values
@@ -427,6 +425,7 @@ VariableNodePtr TGLparser::parse_variable_type(
 
     // decide variable type
     VariableType vtype;
+    int prev_pos = current_pos;
     current_pos = parse_next_token(next_token, cline, current_pos);
     if (next_token == "[")  // this has to be a tensor
     {
@@ -435,6 +434,7 @@ VariableNodePtr TGLparser::parse_variable_type(
     else  // has to be a scalar
     {
         vtype = VariableType::SCALAR;
+        current_pos = prev_pos;  // restore position
     }
 
     // if tensor read the shape and the name
@@ -452,22 +452,16 @@ VariableNodePtr TGLparser::parse_variable_type(
             }
         }
 
-        // read the var name
-        current_pos = parse_next_token(next_token, cline, current_pos);
-        std::string var_name = next_token;
-
-        var = std::make_shared<TensorNode>(vtype, dtype, var_name, shape);
+        var = std::make_shared<TensorNode>(vtype, dtype, "", shape);
     }
 
     // if scalar (return the type)
     if (vtype == VariableType::SCALAR)
     {
-        auto var_name = next_token;  // for scalar, the last read is the var. name
-        var = std::make_shared<ScalarNode>(vtype, dtype, var_name);
+        var = std::make_shared<ScalarNode>(vtype, dtype, "");
     }
     
     next_pos = current_pos;
-    defined_nodes.insert({var->name, var});
     return var;
 }
 
@@ -499,7 +493,7 @@ AliasNodePtr TGLparser::parse_alias_node(  // var d = arithmetic_node;
     auto arithm_node = parse_arithmetic_node(line, current_pos, current_pos);
 
     // build the alias node
-    auto node = std::make_shared<AliasNode>(arithm_node);
+    auto node = std::make_shared<AliasNode>(var_name, arithm_node);
     defined_nodes.insert({var_name, node});
 
     // return
