@@ -64,7 +64,7 @@ class PTXGenerator
 public:
     explicit PTXGenerator();
     void build_ir_from_kernel(const KernelNodePtr kernel);
-    void generate_ptx(const std::string& ptx_file);
+    void generate_ptx(const std::string& ptx_file, const bool save_temps);
 
 private:
     std::shared_ptr<LLVMState> compiler_state;

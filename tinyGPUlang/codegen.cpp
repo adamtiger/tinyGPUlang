@@ -117,7 +117,7 @@ void PTXGenerator::build_ir_from_kernel(const KernelNodePtr kernel)
     std::cout << "Kernel was built in IR " << func_name << "\n";
 }
 
-void PTXGenerator::generate_ptx(const std::string& ptx_file)
+void PTXGenerator::generate_ptx(const std::string& ptx_file, const bool save_temps)
 {
     // for further ideas: https://github.com/apache/tvm/blob/main/src/target/llvm/codegen_nvptx.cc
 
@@ -128,12 +128,15 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file)
     llvm::InitializeAllAsmParsers();
     llvm::InitializeAllAsmPrinters();
     
-    auto ll_file_path = replace_extension(ptx_file, "ll");
-    std::ofstream ll_file(ll_file_path);
-    llvm::raw_os_ostream llvm_ostream(ll_file);
-    for (auto& name_func : defined_functions)
+    if (save_temps)
     {
-        name_func.second->print(llvm_ostream);
+        auto ll_file_path = replace_extension(ptx_file, "ll");
+        std::ofstream ll_file(ll_file_path);
+        llvm::raw_os_ostream llvm_ostream(ll_file);
+        for (auto& name_func : defined_functions)
+        {
+            name_func.second->print(llvm_ostream);
+        }
     }
 
     auto TargetTriple = "nvptx64-nvidia-cuda";

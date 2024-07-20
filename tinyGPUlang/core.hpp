@@ -4,6 +4,16 @@
 #include <string>
 
 /*
+    Target types.
+*/
+enum class Target
+{
+    NVIDIA_GPU,
+    AMD_GPU
+};
+
+
+/*
     Thread-safe uuid generator.
     This is global. Creates an
     id unique overall the system
