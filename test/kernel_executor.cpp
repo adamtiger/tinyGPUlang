@@ -77,7 +77,7 @@ void execute_cuda_kernel(const KernelInfo& kernel_info)
 
             if (svar->dtype == DataType::FLOAT32)
             {
-                kernel_params.push_back(reinterpret_cast<char*>(&svar->value_f32));
+                // TODO: how to handle this?
             }
             else
             {

@@ -25,9 +25,18 @@ struct Variable
 
 struct Scalar : public Variable
 {
-    union {
-        float value_f32;
-    };
+    // union {
+    //     float value_f32;
+    // };
+
+    float value_f32;
+
+    explicit Scalar(const DataType dtype, float value)
+    {
+        vtype = VariableType::SCALAR;
+        this->dtype = dtype;
+        this->value_f32 = value;
+    }
 };
 
 struct Tensor : public Variable
