@@ -37,14 +37,14 @@ Operators:
 Files should end with **tgl**. No import of other file is supported.
 
 ```
-func device f32[4, 5, 6] calc_square_diff(in: f32[4, 5, 6] a, f32[4, 5, 6] b)
+func device f32 calc_square_diff(f32 a, f32 b)
 {
     var e = a - b;     // result is stored in a temporary variable (defined with var)
     var e2 = e * e;
     return e2;   
 }
 
-func global void calc_mse(in: f32[4, 5, 6] a, f32[4, 5, 6] b, f32 c, out: f32[4, 5, 6] d)
+func global void calc_mse(f32[4, 5, 6] a, f32[4, 5, 6] b, f32 c, f32[4, 5, 6] d)
 {
     var e2 = calc_square_diff(a, b);  // calling device function
     var me2 = e2 * c;                 // some normalization factor
@@ -56,5 +56,13 @@ func global void calc_mse(in: f32[4, 5, 6] a, f32[4, 5, 6] b, f32 c, out: f32[4,
 }
 ```
 
-The argument of the function contains **in** and **out** keywords.
-The keyword is valid until the other type appears or there are no more arguments.
+### TODO
+
+- [ ] compiler should have argument parameters (for command line useage)
+- [x] output llvm assembly to *ll files
+- [ ] consider inline constants (e.g. var e = c + 4.6f;)
+- [ ] test for edge cases
+- [ ] refactor (parser should give better results and more checks for illegal situation)
+- [ ] test on linux
+- [ ] how to set sm?
+- [ ] document, write the tutorial

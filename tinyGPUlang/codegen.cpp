@@ -1,5 +1,7 @@
 #include "codegen.hpp"
+#include "core.hpp"
 #include "llvm/IR/IntrinsicsNVPTX.h"
+#include <fstream>
 
 PTXGenerator::PTXGenerator()
 {
@@ -125,8 +127,14 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file)
     llvm::InitializeAllTargetMCs();
     llvm::InitializeAllAsmParsers();
     llvm::InitializeAllAsmPrinters();
-
-    //defined_functions.at("add_vec")->print(llvm::errs());  // TODO: print llvm ir into file for observation when asked
+    
+    auto ll_file_path = replace_extension(ptx_file, "ll");
+    std::ofstream ll_file(ll_file_path);
+    llvm::raw_os_ostream llvm_ostream(ll_file);
+    for (auto& name_func : defined_functions)
+    {
+        name_func.second->print(llvm_ostream);
+    }
 
     auto TargetTriple = "nvptx64-nvidia-cuda";
 
