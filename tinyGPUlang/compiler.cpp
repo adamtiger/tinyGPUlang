@@ -6,7 +6,9 @@ int main(int argc, char** argv)
 {
     std::cout << "TinyGPUlang compiler \n";
 
-    std::string path_tgl = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\add_vec.tgl";
+    std::string file_name = "div_vec";
+
+    std::string path_tgl = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\" + file_name + ".tgl";
     TGLparser parser(path_tgl);
     auto kernels = parser.get_all_global_kernel();
 
@@ -15,12 +17,11 @@ int main(int argc, char** argv)
     {
         kernel->accept(*printer);
     }
-    printer->save_into_file("ast.txt");
-
+    printer->save_into_file("C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\" + file_name + ".ast");
 
     PTXGenerator ptx_generator;
     ptx_generator.build_ir_from_kernel(kernels[0]);
-    ptx_generator.generate_ptx("add_vec.ptx");
+    ptx_generator.generate_ptx("C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\" + file_name + ".ptx");
 
     return 0;
 }

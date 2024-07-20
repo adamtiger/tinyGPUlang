@@ -9,7 +9,7 @@ class TGLparser
 public:
      
     explicit TGLparser(const std::string& path_to_tgl);
-    std::vector<KernelNodePtr> get_all_global_kernel() const;
+    std::vector<KernelNodePtr> get_all_global_kernel() const;  // TODO: we need the functions (all) as they were created
     KernelNodePtr get_global_kernel(const std::string& kernel_name) const;
 
 protected:

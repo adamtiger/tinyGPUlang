@@ -97,7 +97,6 @@ void PTXGenerator::build_ir_from_kernel(const KernelNodePtr kernel)
     // apply IR blocks of graph operations
     NVIRBuilder builder(compiler_state, defined_functions, values);
     kernel->accept(builder);
-    std::cout << "after ir builder" << "\n";
     
     if (kernel->scope == KernelScope::GLOBAL)
     {
@@ -127,7 +126,7 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file)
     llvm::InitializeAllAsmParsers();
     llvm::InitializeAllAsmPrinters();
 
-    defined_functions.at("add_vec")->print(llvm::errs());  // TODO: print llvm ir into file for observation when asked
+    //defined_functions.at("add_vec")->print(llvm::errs());  // TODO: print llvm ir into file for observation when asked
 
     auto TargetTriple = "nvptx64-nvidia-cuda";
 
@@ -245,12 +244,20 @@ void NVIRBuilder::apply(AddNode &node)
 
     auto* lhs = values.at(node.lhs->ast_id);
     auto* rhs = values.at(node.rhs->ast_id);
+    
+    llvm::Value* lhs_val = lhs;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.lhs))
+    {
+        auto* lhs_ptr = calc_ptr_from_offset(lhs->getType(), lhs, tid);
+        lhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), lhs_ptr);
+    }
 
-    auto* lhs_ptr = calc_ptr_from_offset(lhs->getType(), lhs, tid);
-    llvm::Value* lhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), lhs_ptr);
-
-    auto* rhs_ptr = calc_ptr_from_offset(rhs->getType(), rhs, tid);
-    llvm::Value* rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
+    llvm::Value* rhs_val = rhs;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.rhs))
+    { 
+        auto* rhs_ptr = calc_ptr_from_offset(rhs->getType(), rhs, tid);
+        rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
+    }
 
     auto* ret = irb->CreateFAdd(lhs_val, rhs_val);
 
@@ -259,14 +266,101 @@ void NVIRBuilder::apply(AddNode &node)
 
 void NVIRBuilder::apply(SubNode &node)
 {
+    if (values.contains(node.ast_id))
+        return;
+
+    node.lhs->accept(*this);
+    node.rhs->accept(*this);
+    
+    auto& ctx = compiler_state->context;
+    auto& irb = compiler_state->ir_builder;
+
+    auto* lhs = values.at(node.lhs->ast_id);
+    auto* rhs = values.at(node.rhs->ast_id);
+    
+    llvm::Value* lhs_val = lhs;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.lhs))
+    {
+        auto* lhs_ptr = calc_ptr_from_offset(lhs->getType(), lhs, tid);
+        lhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), lhs_ptr);
+    }
+
+    llvm::Value* rhs_val = rhs;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.rhs))
+    { 
+        auto* rhs_ptr = calc_ptr_from_offset(rhs->getType(), rhs, tid);
+        rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
+    }
+
+    auto* ret = irb->CreateFSub(lhs_val, rhs_val);
+
+    values.insert({node.ast_id, ret});
 }
 
 void NVIRBuilder::apply(MulNode &node)
 {
+    if (values.contains(node.ast_id))
+        return;
+
+    node.lhs->accept(*this);
+    node.rhs->accept(*this);
+    
+    auto& ctx = compiler_state->context;
+    auto& irb = compiler_state->ir_builder;
+
+    auto* lhs = values.at(node.lhs->ast_id);
+    auto* rhs = values.at(node.rhs->ast_id);
+    
+    llvm::Value* lhs_val = lhs;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.lhs))
+    {
+        auto* lhs_ptr = calc_ptr_from_offset(lhs->getType(), lhs, tid);
+        lhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), lhs_ptr);
+    }
+
+    llvm::Value* rhs_val = rhs;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.rhs))
+    { 
+        auto* rhs_ptr = calc_ptr_from_offset(rhs->getType(), rhs, tid);
+        rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
+    }
+
+    auto* ret = irb->CreateFMul(lhs_val, rhs_val);
+
+    values.insert({node.ast_id, ret});
 }
 
 void NVIRBuilder::apply(DivNode &node)
 {
+    if (values.contains(node.ast_id))
+        return;
+
+    node.lhs->accept(*this);
+    node.rhs->accept(*this);
+    
+    auto& ctx = compiler_state->context;
+    auto& irb = compiler_state->ir_builder;
+
+    auto* lhs = values.at(node.lhs->ast_id);
+    auto* rhs = values.at(node.rhs->ast_id);
+    
+    llvm::Value* lhs_val = lhs;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.lhs))
+    {
+        auto* lhs_ptr = calc_ptr_from_offset(lhs->getType(), lhs, tid);
+        lhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), lhs_ptr);
+    }
+
+    llvm::Value* rhs_val = rhs;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.rhs))
+    { 
+        auto* rhs_ptr = calc_ptr_from_offset(rhs->getType(), rhs, tid);
+        rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
+    }
+
+    auto* ret = irb->CreateFDiv(lhs_val, rhs_val);
+
+    values.insert({node.ast_id, ret});
 }
 
 void NVIRBuilder::apply(SqrtNode &node)
@@ -290,9 +384,13 @@ void NVIRBuilder::apply(AssignmentNode &node)
 
     auto* src = values.at(node.src->ast_id);
     auto* trg = values.at(node.trg->ast_id);
-
-    // auto* src_ptr = calc_ptr_from_offset(src->getType(), src, tid);
-    // llvm::Value* src_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), src_ptr);
+    
+    llvm::Value* src_val = src;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.src))
+    {
+        auto* src_ptr = calc_ptr_from_offset(src->getType(), src, tid);
+        src_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), src_ptr);
+    }
 
     auto* trg_ptr = calc_ptr_from_offset(trg->getType(), trg, tid);
     irb->CreateStore(src, trg_ptr);

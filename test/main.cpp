@@ -20,8 +20,8 @@ int main()
     kernel_info.arguments.push_back(b);
     kernel_info.arguments.push_back(c);
 
-    kernel_info.kernel_name = "add_vec";
-    kernel_info.kernel_file_path = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\add_vec.ptx";
+    kernel_info.kernel_name = "div_vec";
+    kernel_info.kernel_file_path = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\div_vec.ptx";
 
     execute_cuda_kernel(kernel_info);
 
