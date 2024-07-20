@@ -69,15 +69,9 @@ TGLparser::TGLparser(const std::string& path_to_tgl)
     std::cout << "Parsed " << defined_global_kernels.size() << " global kernels" << std::endl;
 }
 
-std::vector<KernelNodePtr> TGLparser::get_all_global_kernel() const
+std::vector<KernelNodePtr> TGLparser::get_all_kernels() const
 {
-    std::vector<KernelNodePtr> kernels;
-    for (auto& n_k : defined_global_kernels)
-    {
-        kernels.push_back(n_k.second);
-    }
-
-    return kernels;
+    return defined_kernels;
 }
 
 KernelNodePtr TGLparser::get_global_kernel(const std::string& kernel_name) const
@@ -216,6 +210,7 @@ void TGLparser::parse_next_kernel(const int start_line, const int start_pos, int
         }
 
         defined_global_kernels.insert({kernel->name, kernel});
+        defined_kernels.push_back(kernel);
     }
     else  // device
     {
@@ -225,6 +220,7 @@ void TGLparser::parse_next_kernel(const int start_line, const int start_pos, int
         }
 
         defined_device_kernels.insert({kernel->name, kernel});
+        defined_kernels.push_back(kernel);
     }
 
     // parse kernel body

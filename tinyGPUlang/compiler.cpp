@@ -6,11 +6,11 @@ int main(int argc, char** argv)
 {
     std::cout << "TinyGPUlang compiler \n";
 
-    std::string file_name = "ret_vec";
+    std::string file_name = "call_vec";
 
     std::string path_tgl = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\" + file_name + ".tgl";
     TGLparser parser(path_tgl);
-    auto kernels = parser.get_all_global_kernel();
+    auto kernels = parser.get_all_kernels();
 
     auto printer = std::make_shared<ASTPrinter>();
     for (auto kernel : kernels)
@@ -21,6 +21,7 @@ int main(int argc, char** argv)
 
     PTXGenerator ptx_generator;
     ptx_generator.build_ir_from_kernel(kernels[0]);
+    ptx_generator.build_ir_from_kernel(kernels[1]);
     ptx_generator.generate_ptx("C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\" + file_name + ".ptx");
 
     return 0;

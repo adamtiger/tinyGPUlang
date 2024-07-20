@@ -9,7 +9,7 @@ class TGLparser
 public:
      
     explicit TGLparser(const std::string& path_to_tgl);
-    std::vector<KernelNodePtr> get_all_global_kernel() const;  // TODO: we need the functions (all) as they were created
+    std::vector<KernelNodePtr> get_all_kernels() const;
     KernelNodePtr get_global_kernel(const std::string& kernel_name) const;
 
 protected:
@@ -24,6 +24,7 @@ protected:
     std::unordered_map<std::string, KernelNodePtr> defined_global_kernels;
     std::unordered_map<std::string, KernelNodePtr> defined_device_kernels;
     std::unordered_map<std::string, ASTNodePtr> defined_nodes;
+    std::vector<KernelNodePtr> defined_kernels;  // kernels defined in order
 
     /**
      * Reads all the text from the source file.

@@ -221,6 +221,22 @@ void NVIRBuilder::apply(KernelNode& node)
 
 void NVIRBuilder::apply(KernelCallNode &node)
 {
+    auto& ctx = compiler_state->context;
+    auto& irb = compiler_state->ir_builder;
+
+    // each call is a separate object, so it can not be defined twice
+    llvm::Function* kernel = defined_functions.at(node.kernel->name);
+
+    std::vector<llvm::Value*> llvm_args;
+    for (auto& arg : node.arguments)
+    {
+        auto* llvm_arg = values.at(arg->ast_id);
+        llvm_args.push_back(llvm_arg);
+    }
+
+    llvm::Value* ret = irb->CreateCall(kernel, llvm_args);
+
+    values.insert({node.ast_id, ret});
 }
 
 void NVIRBuilder::apply(ScalarNode &node)
