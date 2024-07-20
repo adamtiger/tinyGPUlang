@@ -6,7 +6,7 @@ int main(int argc, char** argv)
 {
     std::cout << "TinyGPUlang compiler \n";
 
-    std::string file_name = "div_vec";
+    std::string file_name = "exp2_vec";
 
     std::string path_tgl = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\" + file_name + ".tgl";
     TGLparser parser(path_tgl);
