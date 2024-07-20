@@ -17,11 +17,11 @@ int main()
     kernel_info.num_threads = 6;
     
     kernel_info.arguments.push_back(a);
-    //kernel_info.arguments.push_back(b);
+    kernel_info.arguments.push_back(b);
     kernel_info.arguments.push_back(c);
 
-    kernel_info.kernel_name = "exp2_vec";
-    kernel_info.kernel_file_path = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\exp2_vec.ptx";
+    kernel_info.kernel_name = "ret_vec";
+    kernel_info.kernel_file_path = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\ret_vec.ptx";
 
     execute_cuda_kernel(kernel_info);
 

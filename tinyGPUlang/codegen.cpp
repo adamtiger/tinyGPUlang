@@ -225,10 +225,12 @@ void NVIRBuilder::apply(KernelCallNode &node)
 
 void NVIRBuilder::apply(ScalarNode &node)
 {
+    // scalars arrives from outside
 }
 
 void NVIRBuilder::apply(TensorNode &node)
 {
+    // tensors arrives from outside
 }
 
 void NVIRBuilder::apply(AddNode &node)
@@ -458,6 +460,23 @@ void NVIRBuilder::apply(AssignmentNode &node)
 
 void NVIRBuilder::apply(AliasNode &node)
 {
+    if (values.contains(node.ast_id))
+        return;
+    
+    node.src->accept(*this);
+    
+    auto& ctx = compiler_state->context;
+    auto& irb = compiler_state->ir_builder;
+
+    auto src = values.at(node.src->ast_id);
+    llvm::Value* src_val = src;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.src))
+    {
+        auto* src_ptr = calc_ptr_from_offset(src->getType(), src, tid);
+        src_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), src_ptr);
+    }
+
+    values.insert({node.ast_id, src_val});
 }
 
 void NVIRBuilder::apply(ReturnNode &node)
@@ -467,7 +486,18 @@ void NVIRBuilder::apply(ReturnNode &node)
 
     if (node.return_value)
     {
+        node.return_value->accept(*this);
 
+        auto* return_value = values.at(node.return_value->ast_id);
+    
+        llvm::Value* return_value_val = return_value;  // if not a tensor
+        if (std::dynamic_pointer_cast<TensorNode>(node.return_value))
+        {
+            auto* return_value_ptr = calc_ptr_from_offset(return_value->getType(), return_value, tid);
+            return_value_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), return_value_ptr);
+        }
+
+        irb->CreateRet(return_value_val);
     }
     else
     {
