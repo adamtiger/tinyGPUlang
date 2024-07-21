@@ -52,35 +52,27 @@ struct VariableNode : public ASTNode
 struct ScalarNode : public VariableNode
 {
     explicit ScalarNode(
-        const VariableType vtype, 
         const DataType dtype, 
         const std::string& name);
 
     virtual void accept(ASTVisitor& visitor) override;
 
     static ASTNodePtr create_scalar_node(
-        const VariableType vtype, 
         const DataType dtype,
         const std::string& name);
 };
 
 struct TensorNode : public VariableNode
 {
-    std::vector<int> shape;
-
     explicit TensorNode(
-        const VariableType vtype, 
         const DataType dtype, 
-        const std::string& name,
-        const std::vector<int>& shape);
+        const std::string& name);
 
     virtual void accept(ASTVisitor& visitor) override;
 
     static ASTNodePtr create_tensor_node(
-        const VariableType vtype, 
         const DataType dtype,
-        const std::string& name,
-        const std::vector<int>& shape);
+        const std::string& name);
 };
 
 using VariableNodePtr = std::shared_ptr<VariableNode>;

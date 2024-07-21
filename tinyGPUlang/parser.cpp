@@ -426,35 +426,20 @@ VariableNodePtr TGLparser::parse_variable_type(
     if (next_token == "[")  // this has to be a tensor
     {
         vtype = VariableType::TENSOR;
+        current_pos = parse_next_token(next_token, cline, current_pos);
+        if (next_token != "]")
+        {
+            std::cout << "Expected a closing bracket ], got instead " << next_token << std::endl;
+            exit(1);
+        }
+
+        var = std::make_shared<TensorNode>(dtype, "");
     }
     else  // has to be a scalar
     {
         vtype = VariableType::SCALAR;
         current_pos = prev_pos;  // restore position
-    }
-
-    // if tensor read the shape and the name
-    if (vtype == VariableType::TENSOR)
-    {
-        // read the shape
-        std::vector<int> shape;
-        while (next_token != "]")
-        {
-            current_pos = parse_next_token(next_token, cline, current_pos);
-            if (next_token != "]" && next_token != ",")
-            {
-                int s = atoi(next_token.c_str());
-                shape.push_back(s);
-            }
-        }
-
-        var = std::make_shared<TensorNode>(vtype, dtype, "", shape);
-    }
-
-    // if scalar (return the type)
-    if (vtype == VariableType::SCALAR)
-    {
-        var = std::make_shared<ScalarNode>(vtype, dtype, "");
+        var = std::make_shared<ScalarNode>(dtype, "");
     }
     
     next_pos = current_pos;

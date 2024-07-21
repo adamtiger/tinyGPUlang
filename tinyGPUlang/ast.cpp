@@ -46,8 +46,8 @@ VariableNode::VariableNode(
 
 
 ScalarNode::ScalarNode(
-    const VariableType vtype, const DataType dtype, const std::string& name
-    ) : VariableNode(vtype, dtype, name)
+    const DataType dtype, const std::string& name
+    ) : VariableNode(VariableType::SCALAR, dtype, name)
 {
 }
 
@@ -56,21 +56,18 @@ void ScalarNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr ScalarNode::create_scalar_node(
-    const VariableType vtype, 
+ASTNodePtr ScalarNode::create_scalar_node( 
     const DataType dtype,
     const std::string& name)
 {
-    return std::make_shared<ScalarNode>(vtype, dtype, name);   
+    return std::make_shared<ScalarNode>(dtype, name);   
 }
 
 
 TensorNode::TensorNode(
-    const VariableType vtype, 
     const DataType dtype,
-    const std::string& name,
-    const std::vector<int>& shape
-    ) : VariableNode(vtype, dtype, name), shape(shape)
+    const std::string& name
+    ) : VariableNode(VariableType::TENSOR, dtype, name)
 {
 }
 
@@ -80,12 +77,10 @@ void TensorNode::accept(ASTVisitor& visitor)
 }
 
 ASTNodePtr TensorNode::create_tensor_node(
-    const VariableType vtype, 
     const DataType dtype,
-    const std::string& name,
-    const std::vector<int>& shape)
+    const std::string& name)
 {
-    return std::make_shared<TensorNode>(vtype, dtype, name, shape);   
+    return std::make_shared<TensorNode>(dtype, name);   
 }
 
 
@@ -448,13 +443,6 @@ void ASTPrinter::apply(TensorNode &node)
     ss << "  name:      " << node.name << "\n";
     ss << "  var_type:  " << node.vtype << "\n";
     ss << "  data_type: " << node.dtype << "\n";
-
-    ss << "  shape:     ";
-    for (int s : node.shape)
-    {
-        ss << s << ", ";
-    }
-    ss << "\n";
 
     ss << "\n";
     ast_as_string.append(ss.str());

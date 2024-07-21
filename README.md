@@ -29,7 +29,6 @@ Operators:
 * sqrt
 * exp2
 * log2
-* pow
 * abs
 
 ### Example code
@@ -61,8 +60,8 @@ func global void calc_mse(f32[4, 5, 6] a, f32[4, 5, 6] b, f32 c, f32[4, 5, 6] d)
 - [x] compiler should have argument parameters (for command line useage)
 - [x] output llvm assembly to *ll files
 - [ ] consider inline constants (e.g. var e = c + 4.6f;)
+- [ ] refactor (parser should give better results and more checks for illegal situation, cleaning, ensure consistency, no size for tensor)
 - [ ] test for edge cases
-- [ ] refactor (parser should give better results and more checks for illegal situation, cleaning, ensure consistency)
 - [ ] test on linux
 - [ ] how to set sm?
 - [ ] document, write the tutorial
