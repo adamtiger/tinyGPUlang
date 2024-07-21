@@ -6,7 +6,7 @@
 #include <iostream>
 #include <unordered_set>
 
-// fprward declaration
+// forward declaration
 class ASTVisitor;
 
 // AST base
@@ -45,7 +45,7 @@ struct ConstantNode : public ASTNode
     DataType dtype;
 
     explicit ConstantNode(
-        const float value,  // for float16 it is casted
+        const float value,
         const DataType dtype);
 
     virtual void accept(ASTVisitor& visitor) override;

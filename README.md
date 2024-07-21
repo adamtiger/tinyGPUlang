@@ -62,8 +62,9 @@ func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
 - [x] consider inline constants (e.g. var e = c + 4.6f;)
 - [x] remove float16
 - [x] in parser error, report the line and column positions
-- [ ] add abs node
-- [ ] refactor (parser should do more checks for illegal situation, cleaning, create_xxx_node should be revisited)
+- [x] add abs node
+- [x] add output option to cmd
+- [ ] refactor (parser should do more checks for illegal situation, file opening checks, cleaning, create_xxx_node should be revisited)
 - [ ] test for edge cases
 - [ ] test on linux
 - [ ] how to set sm?

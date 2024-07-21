@@ -49,6 +49,17 @@ std::string replace_extension(
 );
 
 /**
+    Exchanges the folder path the file name will be the same
+    @param path_to_file file path to be modified
+    @param new_folder_path name of new folder to save with same file name
+    @return a string with replaced extension
+*/
+std::string replace_folder_path(
+    const std::string& path_to_file,
+    const std::string& new_folder_path
+);
+
+/**
     Writes error message to the screen and halts the
     program execution.
 */

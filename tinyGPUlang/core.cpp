@@ -31,6 +31,17 @@ std::string replace_extension(
 }
 
 
+std::string replace_folder_path(
+    const std::string& path_to_file,
+    const std::string& new_folder_path)
+{
+    auto new_folder = std::filesystem::path(new_folder_path);
+    auto orig_file_name = std::filesystem::path(path_to_file).filename();
+    auto new_file_path = new_folder.append(orig_file_name.string());
+    return new_file_path.string();
+}
+
+
 void emit_error(const std::string& error_msg, const int line, const int pos)
 {
     if (line > -1 && pos > -1)

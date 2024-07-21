@@ -11,7 +11,8 @@ static void print_help_info();
 static void compile_source_file(
     const std::string& tgl_path, 
     const Target target, 
-    const bool save_temps);
+    const bool save_temps,
+    const std::string& out_folder_path);
 
 int main(int argc, char** argv)
 {
@@ -39,6 +40,7 @@ int main(int argc, char** argv)
         std::string path_to_tgl = "";
         Target target = Target::NVIDIA_GPU;
         bool save_temps = false;
+        std::string out_folder_path = "";
 
         int arg_ix = 1;
         while (arg_ix < argc)
@@ -84,6 +86,11 @@ int main(int argc, char** argv)
                 save_temps = true;
                 arg_ix += 1;
             }
+            else if (arg_str == "--out")
+            {
+                out_folder_path = argv[arg_ix + 1];
+                arg_ix += 2;
+            }
             else
             {
                 std::stringstream ss;
@@ -96,7 +103,7 @@ int main(int argc, char** argv)
 
         if (path_to_tgl != "")
         {
-            compile_source_file(path_to_tgl, target, save_temps);
+            compile_source_file(path_to_tgl, target, save_temps, out_folder_path);
         }
         else
         {
@@ -128,6 +135,7 @@ void print_help_info()
     ss << "    --src         : path to the tgl file (only one file at once) \n";
     ss << "    --target      : currently only nvidia is supported (defaults to 'nvidia') \n";
     ss << "    --save-temps  : if present, saves the ll and ast files (defaults to false) \n";
+    ss << "    --out         : if present, it has to be a folder path for saving files \n";
     ss << "\n";
 
     std::cout << ss.str();
@@ -136,9 +144,19 @@ void print_help_info()
 void compile_source_file(
     const std::string& tgl_path, 
     const Target target, 
-    const bool save_temps)
+    const bool save_temps,
+    const std::string& out_folder_path)
 {
     std::cout << "TinyGPUlang compiler \n";
+    
+    std::string temp_path = tgl_path;
+    if (out_folder_path != "")
+    {
+        temp_path = replace_folder_path(tgl_path, out_folder_path);
+    }
+
+    std::string ast_file_path = replace_extension(temp_path, "ast");;
+    std::string ptx_file_path = replace_extension(temp_path, "ptx");
 
     TGLparser parser(tgl_path);
     auto kernels = parser.get_all_kernels();
@@ -150,7 +168,7 @@ void compile_source_file(
         {
             kernel->accept(*printer);
         }
-        printer->save_into_file(replace_extension(tgl_path, "ast"));
+        printer->save_into_file(ast_file_path);
     }
     
     PTXGenerator ptx_generator;
@@ -158,5 +176,5 @@ void compile_source_file(
     {
         ptx_generator.build_ir_from_kernel(kernel);
     }
-    ptx_generator.generate_ptx(replace_extension(tgl_path, "ptx"), save_temps);
+    ptx_generator.generate_ptx(ptx_file_path, save_temps);
 }
