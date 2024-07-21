@@ -10,7 +10,7 @@ Two data structures: scalar and tensor.
 Scalars are single numbers, tensors can be have any dimension
 but they need to have the same size.
 
-Data types: float32 (f32), float16 (f16).
+Data type: float32 (f32).
 
 ### Operations
 
@@ -25,7 +25,6 @@ Operators:
 * elementwise sub
 * elementwise mul
 * elementwise div
-* sin
 * sqrt
 * exp2
 * log2
@@ -63,7 +62,8 @@ func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
 - [x] consider inline constants (e.g. var e = c + 4.6f;)
 - [x] remove float16
 - [x] in parser error, report the line and column positions
-- [ ] refactor (parser should do more checks for illegal situation, cleaning)
+- [ ] add abs node
+- [ ] refactor (parser should do more checks for illegal situation, cleaning, create_xxx_node should be revisited)
 - [ ] test for edge cases
 - [ ] test on linux
 - [ ] how to set sm?

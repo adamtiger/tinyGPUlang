@@ -97,6 +97,7 @@ public:
     virtual void apply(MulNode& node);
     virtual void apply(DivNode& node);
 
+    virtual void apply(AbsNode& node);
     virtual void apply(SqrtNode& node);
     virtual void apply(Log2Node& node);
     virtual void apply(Exp2Node& node);

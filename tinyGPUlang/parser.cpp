@@ -38,11 +38,10 @@ std::unordered_set<char> TGLparser::arithmetic_chars =
 
 std::unordered_set<std::string> TGLparser::builtin_kernel_names = 
 {
+    "abs",
     "sqrt",
     "exp2",
-    "log2",
-    "abs",
-    "sin"
+    "log2"
 };
 
 std::unordered_map<char, int> TGLparser::arithmetic_precedences = 
@@ -652,6 +651,10 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
         else if (kernel_name == "log2")
         {
             node = Log2Node::create_log2_node(var_node);
+        }
+        else if (kernel_name == "abs")
+        {
+            node = AbsNode::create_abs_node(var_node);
         }
         else
         {

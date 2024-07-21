@@ -193,6 +193,13 @@ struct UnaryNode : ASTNode
     explicit UnaryNode(const ASTNodePtr x);
 };
 
+struct AbsNode : UnaryNode
+{
+    explicit AbsNode(const ASTNodePtr x);
+    virtual void accept(ASTVisitor& visitor) override;
+    static ASTNodePtr create_abs_node(const ASTNodePtr x);
+};
+
 struct SqrtNode : UnaryNode
 {
     explicit SqrtNode(const ASTNodePtr x);
@@ -267,6 +274,7 @@ public:
     virtual void apply(MulNode& node) = 0;
     virtual void apply(DivNode& node) = 0;
 
+    virtual void apply(AbsNode& node) = 0;
     virtual void apply(SqrtNode& node) = 0;
     virtual void apply(Log2Node& node) = 0;
     virtual void apply(Exp2Node& node) = 0;
@@ -297,6 +305,7 @@ public:
     virtual void apply(MulNode& node);
     virtual void apply(DivNode& node);
 
+    virtual void apply(AbsNode& node);
     virtual void apply(SqrtNode& node);
     virtual void apply(Log2Node& node);
     virtual void apply(Exp2Node& node);

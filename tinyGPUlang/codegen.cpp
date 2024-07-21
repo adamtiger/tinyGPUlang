@@ -400,6 +400,30 @@ void NVIRBuilder::apply(DivNode &node)
     values.insert({node.ast_id, ret});
 }
 
+void NVIRBuilder::apply(AbsNode &node)
+{
+    if (values.contains(node.ast_id))
+        return;
+
+    node.x->accept(*this);
+    
+    auto& ctx = compiler_state->context;
+    auto& irb = compiler_state->ir_builder;
+
+    auto* x = values.at(node.x->ast_id);
+    
+    llvm::Value* x_val = x;  // if not a tensor
+    if (std::dynamic_pointer_cast<TensorNode>(node.x))
+    {
+        auto* x_ptr = calc_ptr_from_offset(x->getType(), x, tid);
+        x_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), x_ptr);
+    }
+
+    auto* ret = irb->CreateIntrinsic(x_val->getType(), llvm::Intrinsic::nvvm_fabs_f, x_val);
+
+    values.insert({node.ast_id, ret});
+}
+
 void NVIRBuilder::apply(SqrtNode &node)
 {
     if (values.contains(node.ast_id))

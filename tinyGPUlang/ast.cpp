@@ -233,6 +233,21 @@ UnaryNode::UnaryNode(const ASTNodePtr x) : ASTNode(), x(x)
 }
 
 
+AbsNode::AbsNode(const ASTNodePtr x) : UnaryNode(x)
+{
+}
+
+void AbsNode::accept(ASTVisitor& visitor)
+{
+    visitor.apply(*this);
+}
+
+ASTNodePtr AbsNode::create_abs_node(const ASTNodePtr x)
+{
+    return std::make_shared<AbsNode>(x);
+}
+
+
 SqrtNode::SqrtNode(const ASTNodePtr x) : UnaryNode(x)
 {
 }
@@ -567,6 +582,25 @@ void ASTPrinter::apply(DivNode &node)
 
     node.lhs->accept(*this);
     node.rhs->accept(*this);
+
+    already_printed.insert(node.ast_id);
+}
+
+void ASTPrinter::apply(AbsNode &node)
+{
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- AbsNode \n";
+    ss << "  id:    " << node.ast_id << "\n";
+    ss << "  x:     " << node.x->ast_id << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
+
+    node.x->accept(*this);
 
     already_printed.insert(node.ast_id);
 }
