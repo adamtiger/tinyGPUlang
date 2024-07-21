@@ -61,7 +61,7 @@ protected:
      * @param start_pos shows the position at the beginning of the alias name.
      */
     AliasNodePtr parse_alias_node( 
-        const std::string& line, 
+        const int start_line, 
         const int start_pos, 
         int& next_pos);
 
@@ -69,7 +69,7 @@ protected:
      * @param start_pos shows the position at the beginning of the variable name.
      */
     ReturnNodePtr parse_return_node( 
-        const std::string& line, 
+        const int start_line, 
         const int start_pos, 
         int& next_pos);
 
@@ -78,7 +78,7 @@ protected:
      */
     AssignmentNodePtr parse_assignment_node(
         const std::string& var_name, 
-        const std::string& line, 
+        const int start_line, 
         const int start_pos, 
         int& next_pos);
     
@@ -87,7 +87,7 @@ protected:
      */
     ASTNodePtr parse_kernel_call_node(
         const std::string& kernel_name, 
-        const std::string& line, 
+        const int start_line, 
         const int start_pos, 
         int& next_pos);
 
@@ -95,7 +95,7 @@ protected:
      * @param start_pos shows the position at the beginning of the args.
      */
     ASTNodePtr parse_arithmetic_node( 
-        const std::string& line, 
+        const int start_line, 
         const int start_pos, 
         int& next_pos);
 };

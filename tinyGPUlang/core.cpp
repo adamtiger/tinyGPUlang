@@ -1,5 +1,6 @@
 #include "core.hpp"
 #include <filesystem>
+#include <iostream>
 
 int GlobalUUIDGenerator::generate_uuid()
 {
@@ -27,4 +28,16 @@ std::string replace_extension(
 {
     auto rpl_file_path = std::filesystem::path(path_to_file).replace_extension(new_extension);
     return rpl_file_path.string();
+}
+
+
+void emit_error(const std::string& error_msg, const int line, const int pos)
+{
+    if (line > -1 && pos > -1)
+    {
+        std::cerr << "Line[" << line + 1 << "] " << "Col[" << pos + 1 << "]: ";
+    } 
+
+    std::cerr << error_msg << "\n"; 
+    exit(1);
 }

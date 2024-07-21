@@ -160,17 +160,22 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file, const bool save_tem
     std::error_code EC;
     llvm::raw_fd_ostream dest(ptx_file, EC, llvm::sys::fs::OF_None);
 
-    if (EC) {
-        llvm::errs() << "Could not open file: " << EC.message();
-        return;
+    if (EC) 
+    {
+        std::stringstream ss;
+        ss << "Could not open file: ";
+        ss << EC.message();
+        emit_error(ss.str());
     }
 
     llvm::legacy::PassManager pass;
     auto FileType = llvm::CGFT_AssemblyFile;
 
-    if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
-        llvm::errs() << "TheTargetMachine can't emit a file of this type";
-        return;
+    if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) 
+    {
+        std::stringstream ss;
+        ss << "TheTargetMachine can't emit a file of this type";
+        emit_error(ss.str());
     }
 
     pass.run(*compiler_state->gmodule);
@@ -200,7 +205,7 @@ llvm::Value* NVIRBuilder::calc_ptr_from_offset(
     auto& irb = compiler_state->ir_builder;
     auto& ctx = compiler_state->context;
 
-    llvm::Type* llvm_type = llvm::Type::getFloatTy(*ctx); //(??? ? llvm::Type::getFloatTy(*ctx) : llvm::Type::getHalfTy(*ctx));
+    llvm::Type* llvm_type = llvm::Type::getFloatTy(*ctx);
     llvm::Value* ptr_element = irb->CreateGEP(llvm_type, ptr, idx, "ptr");
     return ptr_element;
 }

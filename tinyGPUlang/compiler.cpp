@@ -22,8 +22,7 @@ int main(int argc, char** argv)
     // check for version and helper
     if (argc <= 1)
     {
-        std::cout << "No option is supported. See --help for details! \n";
-        exit(1);
+        emit_error("No option is supported. See --help for details!");
     }
 
     std::string arg_str = argv[1];
@@ -54,8 +53,11 @@ int main(int argc, char** argv)
                 std::string extension = std::filesystem::path(path_to_tgl).extension().string();
                 if (extension != ".tgl")
                 {
-                    std::cout << "Expected a source file with tgl extension. Instead got " << extension << " See --help for details! \n";
-                    exit(1);
+                    std::stringstream ss;
+                    ss << "Expected a source file with tgl extension. Instead got ";
+                    ss << extension;
+                    ss << ". See --help for details!";
+                    emit_error(ss.str());
                 }
             }
             else if (arg_str == "--target")
@@ -68,8 +70,11 @@ int main(int argc, char** argv)
                 }
                 else
                 {
-                    std::cout << "Unknown target name " << trg_str << " . See --help for details! \n";
-                    exit(1);
+                    std::stringstream ss;
+                    ss << "Unknown target name ";
+                    ss << trg_str;
+                    ss << ". See --help for details!";
+                    emit_error(ss.str());
                 }
 
                 arg_ix += 2;
@@ -81,8 +86,11 @@ int main(int argc, char** argv)
             }
             else
             {
-                std::cout << "Unknown command line option " << arg_str << " . See --help for details! \n";
-                exit(1);
+                std::stringstream ss;
+                ss << "Unknown command line option ";
+                ss << arg_str;
+                ss << ". See --help for details!";
+                emit_error(ss.str());
             }
         }
 
@@ -92,7 +100,11 @@ int main(int argc, char** argv)
         }
         else
         {
-            std::cout << "No path to a source is supported. Error during compilation. See --help for details! \n";
+            std::stringstream ss;
+            ss << "No path to a source is supported. ";
+            ss << "Error during compilation. ";
+            ss << ". See --help for details!";
+            emit_error(ss.str());
         }
     }
 

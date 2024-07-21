@@ -1,4 +1,5 @@
 #include "parser.hpp"
+#include "core.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -97,7 +98,10 @@ void TGLparser::read_all_lines_from_tgl(const std::string& path_to_tgl)
     }
     else
     {
-        std::cout << "Error while opening file " << path_to_tgl << std::endl;
+        std::stringstream ss;
+        ss << "Error while opening file ";
+        ss << path_to_tgl;
+        emit_error(ss.str());
     }
 }
 
@@ -206,7 +210,10 @@ void TGLparser::parse_next_kernel(const int start_line, const int start_pos, int
     {
         if (defined_global_kernels.contains(kernel->name))
         {
-            std::cout << "Global kernel already defined " << kernel->name << "\n";
+            std::stringstream ss;
+            ss << "Global kernel already defined: ";
+            ss << kernel->name;
+            emit_error(ss.str(), current_line, current_pos);
         }
 
         defined_global_kernels.insert({kernel->name, kernel});
@@ -216,7 +223,10 @@ void TGLparser::parse_next_kernel(const int start_line, const int start_pos, int
     {
         if (defined_global_kernels.contains(kernel->name))
         {
-            std::cout << "Device kernel already defined " << kernel->name << "\n";
+            std::stringstream ss;
+            ss << "Device kernel already defined: ";
+            ss << kernel->name;
+            emit_error(ss.str(), current_line, current_pos);
         }
 
         defined_device_kernels.insert({kernel->name, kernel});
@@ -252,8 +262,10 @@ KernelNodePtr TGLparser::parse_kernel_header(const int start_line, const int sta
     }
     else
     {
-        std::cout << "Wrong scope for function " << next_token << "\n";
-        return nullptr;
+        std::stringstream ss;
+        ss << "Wrong scope for function: ";
+        ss << next_token;
+        emit_error(ss.str(), current_line, current_pos);
     }
 
     // parse the return type
@@ -263,12 +275,15 @@ KernelNodePtr TGLparser::parse_kernel_header(const int start_line, const int sta
     VariableNodePtr return_var_type = nullptr; 
     if (next_token != "void")
     {
-        if (next_token != "f32" && next_token != "f16")
+        if (next_token != "f32")
         {
-            std::cout << "Wrong variable type " << next_token << "\n";
+            std::stringstream ss;
+            ss << "Wrong variable type: ";
+            ss << next_token;
+            emit_error(ss.str(), current_line, current_pos);
         }
 
-        return_var_type = parse_variable_type(current_line, prev_pos, current_pos);  // f32 or f16;
+        return_var_type = parse_variable_type(current_line, prev_pos, current_pos);
     }
 
     // parse the function name
@@ -283,7 +298,10 @@ KernelNodePtr TGLparser::parse_kernel_header(const int start_line, const int sta
 
     if (start_parantheses != "(")
     {
-        std::cout << "Expected a ( character instead of " << start_parantheses << "\n";
+        std::stringstream ss;
+        ss << "Expected a ( character instead of ";
+        ss << start_parantheses;
+        emit_error(ss.str(), current_line, current_pos);
     }
 
     while (next_token != ")")
@@ -314,8 +332,9 @@ void TGLparser::parse_kernel_body(KernelNodePtr kernel, const int start_line, co
     {
         if (current_line >= all_lines.size())
         {
-            std::cout << "Expected a { character for starting the kernel body \n";
-            return;
+            std::stringstream ss;
+            ss << "Expected a { character for starting the kernel body.";
+            emit_error(ss.str(), current_line, current_pos);
         }
 
         auto& cline = all_lines[current_line];
@@ -351,13 +370,13 @@ void TGLparser::parse_kernel_body(KernelNodePtr kernel, const int start_line, co
         // handle if next token is var (it is not ambigous)
         else if (next_token == "var")
         {
-            auto node = parse_alias_node(cline, current_pos, current_pos);
+            auto node = parse_alias_node(current_line, current_pos, current_pos);
             kernel->body.push_back(node);
         }
         // handle if next token is return
         else if (next_token == "return")
         {
-            auto node = parse_return_node(cline, current_pos, current_pos);
+            auto node = parse_return_node(current_line, current_pos, current_pos);
             kernel->body.push_back(node);
         }
         // handle the function call or the assignment case
@@ -369,19 +388,22 @@ void TGLparser::parse_kernel_body(KernelNodePtr kernel, const int start_line, co
             // handle the assignment case
             if (next_token == "=")
             {
-                auto node = parse_assignment_node(first_token, cline, current_pos, current_pos);
+                auto node = parse_assignment_node(first_token, current_line, current_pos, current_pos);
                 kernel->body.push_back(node);
             }
             // handle the potential function call case
             else if (next_token == "(")
             {
-                auto node = parse_arithmetic_node(cline, line_expression_start_pos, current_pos);
+                auto node = parse_arithmetic_node(current_line, line_expression_start_pos, current_pos);
                 kernel->body.push_back(node);
             }
             // unexpected case
             else
             {
-                std::cout << "Unexpected expression, starts with " << first_token << std::endl;
+                std::stringstream ss;
+                ss << "Unexpected expression, starts with ";
+                ss << first_token;
+                emit_error(ss.str(), current_line, current_pos);
             }
         }
     }
@@ -412,7 +434,10 @@ VariableNodePtr TGLparser::parse_variable_type(
     }
     else
     {
-        std::cout << "Expected a f32 or f16, but got instead " << next_token << "\n";
+        std::stringstream ss;
+        ss << "Expected a f32, but got instead ";
+        ss << next_token;
+        emit_error(ss.str(), start_line, current_pos);
     }
 
     // decide variable type
@@ -425,8 +450,10 @@ VariableNodePtr TGLparser::parse_variable_type(
         current_pos = parse_next_token(next_token, cline, current_pos);
         if (next_token != "]")
         {
-            std::cout << "Expected a closing bracket ], got instead " << next_token << std::endl;
-            exit(1);
+            std::stringstream ss;
+            ss << "Expected a closing bracket ], got instead ";
+            ss << next_token;
+            emit_error(ss.str(), start_line, current_pos);
         }
 
         var = std::make_shared<TensorNode>(dtype, "");
@@ -449,10 +476,11 @@ ConstantNodePtr TGLparser::parse_constant_scalar(const std::string& value_as_str
 }
 
 AliasNodePtr TGLparser::parse_alias_node(  // var d = arithmetic_node;
-    const std::string& line, 
+    const int start_line, 
     const int start_pos, 
     int& next_pos)
 {
+    std::string line = all_lines[start_line];
     int current_pos = start_pos;
     std::string next_token;
 
@@ -462,18 +490,24 @@ AliasNodePtr TGLparser::parse_alias_node(  // var d = arithmetic_node;
     std::string var_name = next_token;
     if (defined_nodes.contains(var_name))
     {
-        std::cout << "Alias variable is already defined (duplication not allowed): " << var_name << std::endl;
+        std::stringstream ss;
+        ss << "Alias variable is already defined (duplication not allowed): ";
+        ss << var_name;
+        emit_error(ss.str(), start_line, current_pos);
     }
 
     // check the equation sign
     current_pos = parse_next_token(next_token, line, current_pos);
     if (next_token != "=")
     {
-        std::cout << "Expected an = but instead got: " << next_token << std::endl;
+        std::stringstream ss;
+        ss << "Expected an = but instead got: ";
+        ss << next_token;
+        emit_error(ss.str(), start_line, current_pos);
     }
 
     // process the arithmetic node (function calls also handled by it)
-    auto arithm_node = parse_arithmetic_node(line, current_pos, current_pos);
+    auto arithm_node = parse_arithmetic_node(start_line, current_pos, current_pos);
 
     // build the alias node
     auto node = std::make_shared<AliasNode>(var_name, arithm_node);
@@ -485,15 +519,16 @@ AliasNodePtr TGLparser::parse_alias_node(  // var d = arithmetic_node;
 }
 
 ReturnNodePtr TGLparser::parse_return_node( 
-    const std::string& line, 
+    const int start_line, 
     const int start_pos, 
     int& next_pos)
 {
+    std::string line = all_lines[start_line];
     int current_pos = start_pos;
 
     // return keyword is already consumed by the caller
     // process the arithmetic node (function calls also handled by it)
-    auto arithm_node = parse_arithmetic_node(line, current_pos, current_pos);
+    auto arithm_node = parse_arithmetic_node(start_line, current_pos, current_pos);
 
     // build return node
     auto node = std::make_shared<ReturnNode>(arithm_node);
@@ -505,10 +540,11 @@ ReturnNodePtr TGLparser::parse_return_node(
 
 AssignmentNodePtr TGLparser::parse_assignment_node(
     const std::string& var_name, 
-    const std::string& line, 
+    const int start_line, 
     const int start_pos, 
     int& next_pos)
 {
+    std::string line = all_lines[start_line];
     int current_pos = start_pos;
     std::string next_token;
 
@@ -518,13 +554,16 @@ AssignmentNodePtr TGLparser::parse_assignment_node(
     // getting node for var name
     if (!defined_nodes.contains(var_name))
     {
-        std::cout << "Assigning to undefined variable: " << var_name << std::endl;
+        std::stringstream ss;
+        ss << "Assigning to undefined variable: ";
+        ss << var_name;
+        emit_error(ss.str(), start_line, current_pos);
     }
 
     auto var_node = defined_nodes.at(var_name);
 
     // process the arithmetic node (function calls also handled by it)
-    auto arithm_node = parse_arithmetic_node(line, current_pos, current_pos);
+    auto arithm_node = parse_arithmetic_node(start_line, current_pos, current_pos);
 
     // build the alias node
     auto node = std::make_shared<AssignmentNode>(var_node, arithm_node);
@@ -536,10 +575,11 @@ AssignmentNodePtr TGLparser::parse_assignment_node(
 
 ASTNodePtr TGLparser::parse_kernel_call_node(
     const std::string& kernel_name, 
-    const std::string& line, 
+    const int start_line,
     const int start_pos, 
     int& next_pos)
 {
+    std::string line = all_lines[start_line];
     int current_pos = start_pos;
     std::string next_token;
 
@@ -555,8 +595,10 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
 
         if (!kernel_node)
         {
-            std::cout << "Expected a kernel node " << kernel_name << std::endl;
-            exit(1);
+            std::stringstream ss;
+            ss << "Expected a kernel node for ";
+            ss << kernel_name;
+            emit_error(ss.str(), start_line, current_pos);
         }
 
         // process the arguments
@@ -570,8 +612,10 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
 
                 if (!defined_nodes.contains(var_name))
                 {
-                    std::cout << "Undefined variable in call arguments: " << var_name << std::endl;
-                    exit(1);
+                    std::stringstream ss;
+                    ss << "Undefined variable in call arguments: ";
+                    ss << var_name;
+                    emit_error(ss.str(), start_line, current_pos);
                 }
 
                 auto node = defined_nodes.at(var_name);
@@ -589,8 +633,10 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
 
         if (!defined_nodes.contains(var_name))
         {
-            std::cout << "Undefined variable in call arguments: " << var_name << std::endl;
-            exit(1);
+            std::stringstream ss;
+            ss << "Undefined variable in call arguments: ";
+            ss << var_name;
+            emit_error(ss.str(), start_line, current_pos);
         }
 
         auto var_node = defined_nodes.at(var_name);
@@ -609,8 +655,10 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
         }
         else
         {
-            std::cout << "Undefined variable in call arguments: " << var_name << std::endl;
-            exit(1);
+            std::stringstream ss;
+            ss << "Undefined variable in call arguments: ";
+            ss << var_name;
+            emit_error(ss.str(), start_line, current_pos);
         }
 
         // consume the ')' paranthesis
@@ -618,8 +666,10 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
     }
     else
     {
-        std::cout << "Undefined function can not be called: " << kernel_name << std::endl;
-        exit(1);
+        std::stringstream ss;
+        ss << "Undefined function can not be called: ";
+        ss << kernel_name;
+        emit_error(ss.str(), start_line, current_pos);
     }
 
     // return
@@ -628,7 +678,7 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
 }
 
 ASTNodePtr TGLparser::parse_arithmetic_node( 
-    const std::string& line, 
+    const int start_line, 
     const int start_pos, 
     int& next_pos)
 {
@@ -637,6 +687,7 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
     // - variable
     // - another complex arithm expression (paranthesis signals it)
     
+    std::string line = all_lines[start_line];
     int current_pos = start_pos;
     std::string next_token;
 
@@ -651,7 +702,7 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
         // select arithmetc operand type
         if (next_token == "(")  // complex arithmetic expression
         {
-            auto sub_expression = parse_arithmetic_node(line, current_pos, current_pos);
+            auto sub_expression = parse_arithmetic_node(start_line, current_pos, current_pos);
             ast_nodes.push_back(sub_expression);
         }
         else if (arithmetic_chars.contains(next_token[0]))  // arithmetic operator sign, e.g. +
@@ -666,7 +717,7 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
 
             if (next_token == "(")  // has to be a function
             {
-                auto node = parse_kernel_call_node(expr_name, line, next_pos, current_pos);
+                auto node = parse_kernel_call_node(expr_name, start_line, next_pos, current_pos);
                 ast_nodes.push_back(node);
             }
             else if (expr_name.find('.') < std::string::npos)  // can be a constant scalar
@@ -676,7 +727,7 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
             }
             else  // has to be a variable (or an alias)
             {
-                auto node = defined_nodes.at(expr_name);
+                auto node = defined_nodes.at(expr_name);  // TODO: check error!
                 ast_nodes.push_back(node);
             }
         }
