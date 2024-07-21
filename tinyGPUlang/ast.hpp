@@ -31,8 +31,7 @@ std::ostream& operator<<(std::ostream& os, const VariableType var_type);
 
 enum class DataType
 {
-    FLOAT32,
-    FLOAT16
+    FLOAT32
 };
 
 std::ostream& operator<<(std::ostream& os, const DataType var_type);

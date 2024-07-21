@@ -13,8 +13,7 @@ enum class VariableType
 
 enum class DataType
 {
-    FLOAT32,
-    FLOAT16
+    FLOAT32
 };
 
 struct Variable 
@@ -25,11 +24,9 @@ struct Variable
 
 struct Scalar : public Variable
 {
-    // union {
-    //     float value_f32;
-    // };
-
-    float value_f32;
+    union {
+        float value_f32;
+    };
 
     explicit Scalar(const DataType dtype, float value)
     {

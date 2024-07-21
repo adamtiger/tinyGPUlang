@@ -8,8 +8,7 @@
 */
 enum class Target
 {
-    NVIDIA_GPU,
-    AMD_GPU
+    NVIDIA_GPU
 };
 
 

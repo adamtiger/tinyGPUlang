@@ -66,10 +66,6 @@ int main(int argc, char** argv)
                 {
                     target = Target::NVIDIA_GPU;
                 }
-                else if (trg_str == "amd")
-                {
-                    target = Target::AMD_GPU;
-                }
                 else
                 {
                     std::cout << "Unknown target name " << trg_str << " . See --help for details! \n";
@@ -118,7 +114,7 @@ void print_help_info()
     ss << "    --help        : prints the user manual \n";
     ss << "\n";
     ss << "    --src         : path to the tgl file (only one file at once) \n";
-    ss << "    --target      : one of nvidia or amd (defaults to nvidia) \n";
+    ss << "    --target      : currently only nvidia is supported (defaults to 'nvidia') \n";
     ss << "    --save-temps  : if present, saves the ll and ast files (defaults to false) \n";
     ss << "\n";
 

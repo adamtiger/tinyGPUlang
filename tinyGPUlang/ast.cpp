@@ -23,15 +23,16 @@ std::ostream& operator<<(std::ostream& os, const VariableType var_type)
     return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const DataType var_type)
+std::ostream& operator<<(std::ostream& os, const DataType dtype)
 {
-    if (var_type == DataType::FLOAT32)
+    if (dtype == DataType::FLOAT32)
     {
         os << "FLOAT32";
     }
     else
     {
-        os << "FLOAT16";
+        std::cout << "Unknown data type \n";
+        exit(1);
     }
 
     return os;

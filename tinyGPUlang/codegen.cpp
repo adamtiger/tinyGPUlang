@@ -14,7 +14,7 @@ PTXGenerator::PTXGenerator()
 
     compiler_state->context = std::make_unique<llvm::LLVMContext>();
     compiler_state->ir_builder = std::make_unique<llvm::IRBuilder<>>(*compiler_state->context);
-    compiler_state->gmodule = std::make_unique<llvm::Module>("xgir jit", *compiler_state->context);
+    compiler_state->gmodule = std::make_unique<llvm::Module>("TGLC", *compiler_state->context);
 }
 
 static llvm::Type* get_llvm_type_of_variable(std::unique_ptr<llvm::LLVMContext>& ctx, const VariableNodePtr var)
@@ -26,20 +26,12 @@ static llvm::Type* get_llvm_type_of_variable(std::unique_ptr<llvm::LLVMContext>&
         {
             var_type = llvm::Type::getFloatTy(*ctx);
         }
-        else if (var->dtype == DataType::FLOAT16)
-        {
-            var_type = llvm::Type::getHalfTy(*ctx);
-        }
     }
     else
     {
         if (var->dtype == DataType::FLOAT32)
         {
             var_type = llvm::Type::getFloatPtrTy(*ctx, 1U);
-        }
-        else if (var->dtype == DataType::FLOAT16)
-        {
-            var_type = llvm::Type::getHalfPtrTy(*ctx, 1U);
         }
     }
     return var_type;

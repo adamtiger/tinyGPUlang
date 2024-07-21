@@ -60,7 +60,7 @@ func global void calc_mse(f32[4, 5, 6] a, f32[4, 5, 6] b, f32 c, f32[4, 5, 6] d)
 - [x] compiler should have argument parameters (for command line useage)
 - [x] output llvm assembly to *ll files
 - [x] consider inline constants (e.g. var e = c + 4.6f;)
-- [ ] remove float16
+- [x] remove float16
 - [ ] refactor (parser should give better results and more checks for illegal situation, cleaning, ensure consistency, no size for tensor)
 - [ ] test for edge cases
 - [ ] test on linux

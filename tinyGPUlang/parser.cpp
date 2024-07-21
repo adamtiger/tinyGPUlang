@@ -410,10 +410,6 @@ VariableNodePtr TGLparser::parse_variable_type(
     {
         dtype = DataType::FLOAT32;
     }
-    else if (next_token == "f16")
-    {
-        dtype = DataType::FLOAT16;
-    }
     else
     {
         std::cout << "Expected a f32 or f16, but got instead " << next_token << "\n";
