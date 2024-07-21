@@ -37,6 +37,23 @@ enum class DataType
 
 std::ostream& operator<<(std::ostream& os, const DataType var_type);
 
+struct ConstantNode : public ASTNode
+{
+    union {
+        float val_f32;
+    };
+
+    DataType dtype;
+
+    explicit ConstantNode(
+        const float value,  // for float16 it is casted
+        const DataType dtype);
+
+    virtual void accept(ASTVisitor& visitor) override;
+};
+
+using ConstantNodePtr = std::shared_ptr<ConstantNode>;
+
 struct VariableNode : public ASTNode
 {
     VariableType vtype;
@@ -76,6 +93,7 @@ struct TensorNode : public VariableNode
 };
 
 using VariableNodePtr = std::shared_ptr<VariableNode>;
+using ScalarNodePtr = std::shared_ptr<ScalarNode>;
 
 // kernel node, represents a kernel function
 
@@ -241,6 +259,7 @@ public:
     virtual void apply(KernelNode& node) = 0;
     virtual void apply(KernelCallNode& node) = 0;
     
+    virtual void apply(ConstantNode& node) = 0;
     virtual void apply(ScalarNode& node) = 0;
     virtual void apply(TensorNode& node) = 0;
 
@@ -270,6 +289,7 @@ public:
     virtual void apply(KernelNode& node);
     virtual void apply(KernelCallNode& node);
     
+    virtual void apply(ConstantNode& node);
     virtual void apply(ScalarNode& node);
     virtual void apply(TensorNode& node);
 

@@ -54,6 +54,8 @@ protected:
     void parse_kernel_body(KernelNodePtr kernel, const int start_line, const int start_pos, int& next_line, int& next_pos);
 
     VariableNodePtr parse_variable_type(const int start_line, const int start_pos, int& next_pos);
+
+    ConstantNodePtr parse_constant_scalar(const std::string& value_as_string);
     
     /**
      * @param start_pos shows the position at the beginning of the alias name.

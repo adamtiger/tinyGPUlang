@@ -38,6 +38,22 @@ std::ostream& operator<<(std::ostream& os, const DataType var_type)
 }
 
 
+ConstantNode::ConstantNode(
+    const float value, const DataType dtype
+    ) : dtype(dtype)
+{
+    if (dtype == DataType::FLOAT32)
+    {
+        this->val_f32 = value;
+    }
+}
+
+void ConstantNode::accept(ASTVisitor& visitor)
+{
+    visitor.apply(*this);
+}
+
+
 VariableNode::VariableNode(
     const VariableType vtype, const DataType dtype, const std::string& name
     ) : ASTNode(), vtype(vtype), dtype(dtype), name(name)
@@ -408,6 +424,26 @@ void ASTPrinter::apply(KernelCallNode &node)
     {
         arg_ast->accept(*this);
     }
+
+    already_printed.insert(node.ast_id);
+}
+
+void ASTPrinter::apply(ConstantNode &node)
+{
+    if (already_printed.contains(node.ast_id))
+        return;
+
+    std::stringstream ss;
+
+    ss << "-- ConstantNode \n";
+    ss << "  id:        " << node.ast_id << "\n";
+    ss << "  data_type: " << node.dtype << "\n";
+
+    if (node.dtype == DataType::FLOAT32)
+        ss << "  f32:       " << node.val_f32 << "\n";
+    
+    ss << "\n";
+    ast_as_string.append(ss.str());
 
     already_printed.insert(node.ast_id);
 }

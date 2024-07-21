@@ -250,6 +250,17 @@ void NVIRBuilder::apply(KernelCallNode &node)
     values.insert({node.ast_id, ret});
 }
 
+void NVIRBuilder::apply(ConstantNode &node)
+{
+    if (values.contains(node.ast_id))
+        return;
+
+    auto& ctx = compiler_state->context;
+    llvm::Value* const_float = llvm::ConstantFP::get(*ctx, llvm::APFloat(node.val_f32));
+
+    values.insert({node.ast_id, const_float});
+}
+
 void NVIRBuilder::apply(ScalarNode &node)
 {
     // scalars arrives from outside

@@ -88,6 +88,7 @@ public:
     virtual void apply(KernelNode& node);
     virtual void apply(KernelCallNode& node);
     
+    virtual void apply(ConstantNode& node);
     virtual void apply(ScalarNode& node);
     virtual void apply(TensorNode& node);
 

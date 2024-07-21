@@ -446,6 +446,12 @@ VariableNodePtr TGLparser::parse_variable_type(
     return var;
 }
 
+ConstantNodePtr TGLparser::parse_constant_scalar(const std::string& value_as_string)
+{
+    float value = std::atof(value_as_string.c_str());
+    return std::make_shared<ConstantNode>(value, DataType::FLOAT32);
+}
+
 AliasNodePtr TGLparser::parse_alias_node(  // var d = arithmetic_node;
     const std::string& line, 
     const int start_pos, 
@@ -665,6 +671,11 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
             if (next_token == "(")  // has to be a function
             {
                 auto node = parse_kernel_call_node(expr_name, line, next_pos, current_pos);
+                ast_nodes.push_back(node);
+            }
+            else if (expr_name.find('.') < std::string::npos)  // can be a constant scalar
+            {
+                auto node = parse_constant_scalar(expr_name);
                 ast_nodes.push_back(node);
             }
             else  // has to be a variable (or an alias)
