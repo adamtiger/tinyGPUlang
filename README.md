@@ -43,14 +43,15 @@ func device f32 calc_square_diff(f32 a, f32 b)
     return e2;   
 }
 
-func global void calc_mse(f32[4, 5, 6] a, f32[4, 5, 6] b, f32 c, f32[4, 5, 6] d)
+func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
 {
     var e2 = calc_square_diff(a, b);  // calling device function
     var me2 = e2 * c;                 // some normalization factor
-    d = sqrt(me2);                    // copies the result into d
+    var me2h = me2 * 0.5;             // 0.5 constant scalar, immediate value
+    d = sqrt(me2h);                   // copies the result into d
 
     // other examples
-    // d = c;  // broadcast c to d
+    // d = c;  // copy c to d
     // d = d + a;
 }
 ```
