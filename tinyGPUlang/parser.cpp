@@ -340,8 +340,15 @@ KernelNodePtr TGLparser::parse_kernel_header(const int start_line, const int sta
         ss << start_parantheses;
         emit_error(ss.str(), current_line, current_pos);
     }
+    
+    bool empty_arg = false;
+    parse_next_token(next_token, cline, current_pos);
+    if (next_token == ")")
+    {
+        empty_arg = true;
+    }
 
-    while (next_token != ")")
+    while (!empty_arg && next_token != ")")
     {
         auto var = parse_variable_type(current_line, current_pos, current_pos);
         current_pos = parse_next_token(next_token, cline, current_pos);  // read the var. name

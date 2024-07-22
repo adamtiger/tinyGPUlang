@@ -88,10 +88,11 @@ void PTXGenerator::build_ir_from_kernel(const KernelNodePtr kernel)
         values.insert({kernel->arguments[ix]->ast_id, kernel_llvm_fn->getArg(ix)});
     }
 
-    // apply IR blocks of graph operations
+    // build IR for the ASTNodes from the kernel body
     NVIRBuilder builder(compiler_state, defined_functions, values);
     kernel->accept(builder);
     
+    // if the kernel is global, annotation is required
     if (kernel->scope == KernelScope::GLOBAL)
     {
         // https://stackoverflow.com/questions/19743861/what-is-llvm-metadata
@@ -154,7 +155,7 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file, const bool save_tem
     }
 
     // this will make possible to use the right intrinsics when possible
-    auto CPU = "";
+    auto CPU = "sm_80";  // to set the sm version (https://reviews.llvm.org/D141054)
     auto Features = "";
 
     llvm::TargetOptions opt;
@@ -579,6 +580,13 @@ void NVIRBuilder::apply(AssignmentNode &node)
         src_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), src_ptr);
     }
 
+    if (src_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In assignment node, the operand is nullptr. (E.g. func node with void return)";
+        emit_error(ss.str());
+    }
+
     auto* trg_ptr = calc_ptr_from_offset(trg->getType(), trg, tid);
     irb->CreateStore(src, trg_ptr);
 }
@@ -599,6 +607,13 @@ void NVIRBuilder::apply(AliasNode &node)
     {
         auto* src_ptr = calc_ptr_from_offset(src->getType(), src, tid);
         src_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), src_ptr);
+    }
+
+    if (src_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In alias node, the operand is nullptr. (E.g. func node with void return)";
+        emit_error(ss.str());
     }
 
     values.insert({node.ast_id, src_val});

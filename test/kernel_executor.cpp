@@ -73,16 +73,7 @@ void execute_cuda_kernel(const KernelInfo& kernel_info)
         }
         else  // it is a scalar
         {
-            auto svar = std::static_pointer_cast<Scalar>(var);
-
-            if (svar->dtype == DataType::FLOAT32)
-            {
-                // TODO: how to handle this?
-            }
-            else
-            {
-                std::cerr << "Unsupported data type \n";
-            }
+            std::cerr << "Scalar input to the global kernel is not supported \n";
         }
     }
 
