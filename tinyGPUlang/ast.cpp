@@ -54,6 +54,13 @@ void ConstantNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
+ConstantNodePtr create_constant_node(
+    const float value,
+    const DataType dtype)
+{
+    return std::make_shared<ConstantNode>(value, dtype);
+}
+
 
 VariableNode::VariableNode(
     const VariableType vtype, const DataType dtype, const std::string& name
@@ -73,7 +80,7 @@ void ScalarNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr ScalarNode::create_scalar_node( 
+ScalarNodePtr create_scalar_node( 
     const DataType dtype,
     const std::string& name)
 {
@@ -93,7 +100,7 @@ void TensorNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr TensorNode::create_tensor_node(
+TensorNodePtr create_tensor_node(
     const DataType dtype,
     const std::string& name)
 {
@@ -132,7 +139,7 @@ void KernelNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr KernelNode::create_kernel_node(
+KernelNodePtr create_kernel_node(
     const std::string& name,
     const KernelScope scope, 
     const std::vector<VariableNodePtr>& arguments,
@@ -155,7 +162,7 @@ void KernelCallNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr KernelCallNode::create_kernelcall_node(
+KernelCallNodePtr create_kernelcall_node(
     const KernelNodePtr kernel, 
     const std::vector<VariableNodePtr>& arguments)
 {
@@ -177,7 +184,7 @@ void AddNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr AddNode::create_add_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
+AddNodePtr create_add_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
 {
     return std::make_shared<AddNode>(lhs, rhs);
 }
@@ -192,7 +199,7 @@ void SubNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr SubNode::create_sub_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
+SubNodePtr create_sub_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
 {
     return std::make_shared<SubNode>(lhs, rhs);
 }
@@ -207,7 +214,7 @@ void MulNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr MulNode::create_mul_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
+MulNodePtr create_mul_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
 {
     return std::make_shared<MulNode>(lhs, rhs);
 }
@@ -222,7 +229,7 @@ void DivNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr DivNode::create_div_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
+DivNodePtr create_div_node(const ASTNodePtr lhs, const ASTNodePtr rhs)
 {
     return std::make_shared<DivNode>(lhs, rhs);
 }
@@ -242,7 +249,7 @@ void AbsNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr AbsNode::create_abs_node(const ASTNodePtr x)
+AbsNodePtr create_abs_node(const ASTNodePtr x)
 {
     return std::make_shared<AbsNode>(x);
 }
@@ -257,7 +264,7 @@ void SqrtNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr SqrtNode::create_sqrt_node(const ASTNodePtr x)
+SqrtNodePtr create_sqrt_node(const ASTNodePtr x)
 {
     return std::make_shared<SqrtNode>(x);
 }
@@ -272,7 +279,7 @@ void Log2Node::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr Log2Node::create_log2_node(const ASTNodePtr x)
+Log2NodePtr create_log2_node(const ASTNodePtr x)
 {
     return std::make_shared<Log2Node>(x);
 }
@@ -287,7 +294,7 @@ void Exp2Node::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr Exp2Node::create_exp2_node(const ASTNodePtr x)
+Exp2NodePtr create_exp2_node(const ASTNodePtr x)
 {
     return std::make_shared<Exp2Node>(x);
 }
@@ -302,7 +309,7 @@ void AssignmentNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr AssignmentNode::create_assignment_node(const ASTNodePtr trg, const ASTNodePtr src)
+AssignmentNodePtr create_assignment_node(const ASTNodePtr trg, const ASTNodePtr src)
 {
     return std::make_shared<AssignmentNode>(trg, src);
 }
@@ -317,7 +324,7 @@ void AliasNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr AliasNode::create_alias_node(const std::string& alias_name, const ASTNodePtr src)
+AliasNodePtr create_alias_node(const std::string& alias_name, const ASTNodePtr src)
 {
     return std::make_shared<AliasNode>(alias_name, src);
 }
@@ -332,7 +339,7 @@ void ReturnNode::accept(ASTVisitor& visitor)
     visitor.apply(*this);
 }
 
-ASTNodePtr ReturnNode::create_node(const ASTNodePtr return_value)
+ReturnNodePtr create_return_node(const ASTNodePtr return_value)
 {
     return std::make_shared<ReturnNode>(return_value);
 }

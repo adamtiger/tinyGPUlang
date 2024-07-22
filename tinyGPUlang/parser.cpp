@@ -315,7 +315,7 @@ KernelNodePtr TGLparser::parse_kernel_header(const int start_line, const int sta
 
     // return values
     next_pos = current_pos;
-    auto node = std::make_shared<KernelNode>(kernel_name, kernel_scope, args, return_var_type);
+    auto node = create_kernel_node(kernel_name, kernel_scope, args, return_var_type);
     defined_nodes.insert({kernel_name, node});
     return node;
 }
@@ -455,13 +455,13 @@ VariableNodePtr TGLparser::parse_variable_type(
             emit_error(ss.str(), start_line, current_pos);
         }
 
-        var = std::make_shared<TensorNode>(dtype, "");
+        var = create_tensor_node(dtype, "");
     }
     else  // has to be a scalar
     {
         vtype = VariableType::SCALAR;
         current_pos = prev_pos;  // restore position
-        var = std::make_shared<ScalarNode>(dtype, "");
+        var = create_scalar_node(dtype, "");
     }
     
     next_pos = current_pos;
@@ -471,7 +471,7 @@ VariableNodePtr TGLparser::parse_variable_type(
 ConstantNodePtr TGLparser::parse_constant_scalar(const std::string& value_as_string)
 {
     float value = std::atof(value_as_string.c_str());
-    return std::make_shared<ConstantNode>(value, DataType::FLOAT32);
+    return create_constant_node(value, DataType::FLOAT32);
 }
 
 AliasNodePtr TGLparser::parse_alias_node(  // var d = arithmetic_node;
@@ -509,7 +509,7 @@ AliasNodePtr TGLparser::parse_alias_node(  // var d = arithmetic_node;
     auto arithm_node = parse_arithmetic_node(start_line, current_pos, current_pos);
 
     // build the alias node
-    auto node = std::make_shared<AliasNode>(var_name, arithm_node);
+    auto node = create_alias_node(var_name, arithm_node);
     defined_nodes.insert({var_name, node});
 
     // return
@@ -530,7 +530,7 @@ ReturnNodePtr TGLparser::parse_return_node(
     auto arithm_node = parse_arithmetic_node(start_line, current_pos, current_pos);
 
     // build return node
-    auto node = std::make_shared<ReturnNode>(arithm_node);
+    auto node = create_return_node(arithm_node);
 
     // return
     next_pos = current_pos;
@@ -565,7 +565,7 @@ AssignmentNodePtr TGLparser::parse_assignment_node(
     auto arithm_node = parse_arithmetic_node(start_line, current_pos, current_pos);
 
     // build the alias node
-    auto node = std::make_shared<AssignmentNode>(var_node, arithm_node);
+    auto node = create_assignment_node(var_node, arithm_node);
 
     // return
     next_pos = current_pos;
@@ -623,7 +623,7 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
         }
 
         // build the alias node
-        node = std::make_shared<KernelCallNode>(kernel_node, arguments);
+        node = create_kernelcall_node(kernel_node, arguments);
     }
     else if (builtin_kernel_names.contains(kernel_name))  // check for builtin functions
     {
@@ -642,19 +642,19 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
 
         if (kernel_name == "sqrt")
         {
-            node = SqrtNode::create_sqrt_node(var_node);
+            node = create_sqrt_node(var_node);
         }
         else if (kernel_name == "exp2")
         {
-            node = Exp2Node::create_exp2_node(var_node);
+            node = create_exp2_node(var_node);
         }
         else if (kernel_name == "log2")
         {
-            node = Log2Node::create_log2_node(var_node);
+            node = create_log2_node(var_node);
         }
         else if (kernel_name == "abs")
         {
-            node = AbsNode::create_abs_node(var_node);
+            node = create_abs_node(var_node);
         }
         else
         {
@@ -765,19 +765,19 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
         ASTNodePtr subnode = nullptr;
         if (best_op == '*')
         {
-            subnode = MulNode::create_mul_node(lhs, rhs);
+            subnode = create_mul_node(lhs, rhs);
         }
         else if (best_op == '/')
         {
-            subnode = DivNode::create_div_node(lhs, rhs);
+            subnode = create_div_node(lhs, rhs);
         }
         else if (best_op == '+')
         {
-            subnode = AddNode::create_add_node(lhs, rhs);
+            subnode = create_add_node(lhs, rhs);
         }
         else if (best_op == '-')
         {
-            subnode = SubNode::create_sub_node(lhs, rhs);
+            subnode = create_sub_node(lhs, rhs);
         }
 
         // change the helper data

@@ -36,6 +36,7 @@ enum class DataType
 
 std::ostream& operator<<(std::ostream& os, const DataType var_type);
 
+
 struct ConstantNode : public ASTNode
 {
     union {
@@ -53,6 +54,11 @@ struct ConstantNode : public ASTNode
 
 using ConstantNodePtr = std::shared_ptr<ConstantNode>;
 
+ConstantNodePtr create_constant_node(
+    const float value,
+    const DataType dtype);
+
+
 struct VariableNode : public ASTNode
 {
     VariableType vtype;
@@ -65,6 +71,9 @@ struct VariableNode : public ASTNode
         const std::string& name);
 };
 
+using VariableNodePtr = std::shared_ptr<VariableNode>;
+
+
 struct ScalarNode : public VariableNode
 {
     explicit ScalarNode(
@@ -72,11 +81,14 @@ struct ScalarNode : public VariableNode
         const std::string& name);
 
     virtual void accept(ASTVisitor& visitor) override;
-
-    static ASTNodePtr create_scalar_node(
-        const DataType dtype,
-        const std::string& name);
 };
+
+using ScalarNodePtr = std::shared_ptr<ScalarNode>;
+
+ScalarNodePtr create_scalar_node(
+    const DataType dtype,
+    const std::string& name);
+
 
 struct TensorNode : public VariableNode
 {
@@ -85,14 +97,13 @@ struct TensorNode : public VariableNode
         const std::string& name);
 
     virtual void accept(ASTVisitor& visitor) override;
-
-    static ASTNodePtr create_tensor_node(
-        const DataType dtype,
-        const std::string& name);
 };
 
-using VariableNodePtr = std::shared_ptr<VariableNode>;
-using ScalarNodePtr = std::shared_ptr<ScalarNode>;
+using TensorNodePtr = std::shared_ptr<TensorNode>;
+
+TensorNodePtr create_tensor_node(
+    const DataType dtype,
+    const std::string& name);
 
 // kernel node, represents a kernel function
 
@@ -120,15 +131,16 @@ struct KernelNode : public ASTNode
         const VariableNodePtr return_value);
 
     virtual void accept(ASTVisitor& visitor) override;
-
-    static ASTNodePtr create_kernel_node(
-        const std::string& name,
-        const KernelScope scope, 
-        const std::vector<VariableNodePtr>& arguments,
-        const VariableNodePtr return_value);
 };
 
 using KernelNodePtr = std::shared_ptr<KernelNode>;
+
+KernelNodePtr create_kernel_node(
+    const std::string& name,
+    const KernelScope scope, 
+    const std::vector<VariableNodePtr>& arguments,
+    const VariableNodePtr return_value);
+
 
 struct KernelCallNode : public ASTNode
 {
@@ -140,13 +152,14 @@ struct KernelCallNode : public ASTNode
         const std::vector<VariableNodePtr>& arguments);
 
     virtual void accept(ASTVisitor& visitor) override;
-
-    static ASTNodePtr create_kernelcall_node(
-        const KernelNodePtr kernel,
-        const std::vector<VariableNodePtr>& arguments);
 };
 
 using KernelCallNodePtr = std::shared_ptr<KernelCallNode>;
+
+KernelCallNodePtr create_kernelcall_node(
+    const KernelNodePtr kernel,
+    const std::vector<VariableNodePtr>& arguments);
+
 
 // arithmetic nodes (binary ops.)
 struct BinaryNode : ASTNode
@@ -157,33 +170,58 @@ struct BinaryNode : ASTNode
     explicit BinaryNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
 
+
 struct AddNode : BinaryNode
 {
     explicit AddNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_add_node(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
+
+using AddNodePtr = std::shared_ptr<AddNode>;
+
+AddNodePtr create_add_node(
+    const ASTNodePtr lhs, 
+    const ASTNodePtr rhs);
+
 
 struct SubNode : BinaryNode
 {
     explicit SubNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_sub_node(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
+
+using SubNodePtr = std::shared_ptr<SubNode>;
+
+SubNodePtr create_sub_node(
+    const ASTNodePtr lhs, 
+    const ASTNodePtr rhs);
+
 
 struct MulNode : BinaryNode
 {
     explicit MulNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_mul_node(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
+
+using MulNodePtr = std::shared_ptr<MulNode>;
+
+MulNodePtr create_mul_node(
+    const ASTNodePtr lhs, 
+    const ASTNodePtr rhs);
+
 
 struct DivNode : BinaryNode
 {
     explicit DivNode(const ASTNodePtr lhs, const ASTNodePtr rhs);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_div_node(const ASTNodePtr lhs, const ASTNodePtr rhs);
 };
+
+using DivNodePtr = std::shared_ptr<DivNode>;
+
+DivNodePtr create_div_node(
+    const ASTNodePtr lhs, 
+    const ASTNodePtr rhs);
+
 
 // unary ops
 struct UnaryNode : ASTNode
@@ -193,12 +231,18 @@ struct UnaryNode : ASTNode
     explicit UnaryNode(const ASTNodePtr x);
 };
 
+
 struct AbsNode : UnaryNode
 {
     explicit AbsNode(const ASTNodePtr x);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_abs_node(const ASTNodePtr x);
 };
+
+using AbsNodePtr = std::shared_ptr<AbsNode>;
+
+AbsNodePtr create_abs_node(
+    const ASTNodePtr x);
+
 
 struct SqrtNode : UnaryNode
 {
@@ -207,19 +251,34 @@ struct SqrtNode : UnaryNode
     static ASTNodePtr create_sqrt_node(const ASTNodePtr x);
 };
 
+using SqrtNodePtr = std::shared_ptr<SqrtNode>;
+
+SqrtNodePtr create_sqrt_node(
+    const ASTNodePtr x);
+
+
 struct Log2Node : UnaryNode
 {
     explicit Log2Node(const ASTNodePtr x);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_log2_node(const ASTNodePtr x);
 };
+
+using Log2NodePtr = std::shared_ptr<Log2Node>;
+
+Log2NodePtr create_log2_node(
+    const ASTNodePtr x);
+
 
 struct Exp2Node : UnaryNode
 {
     explicit Exp2Node(const ASTNodePtr x);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_exp2_node(const ASTNodePtr x);
 };
+
+using Exp2NodePtr = std::shared_ptr<Exp2Node>;
+
+Exp2NodePtr create_exp2_node(
+    const ASTNodePtr x);
 
 // data movement ops
 struct AssignmentNode : ASTNode  // d = a + b;
@@ -229,10 +288,14 @@ struct AssignmentNode : ASTNode  // d = a + b;
 
     explicit AssignmentNode(const ASTNodePtr trg, const ASTNodePtr src);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_assignment_node(const ASTNodePtr trg, const ASTNodePtr src);
 };
 
 using AssignmentNodePtr = std::shared_ptr<AssignmentNode>;
+
+AssignmentNodePtr create_assignment_node(
+    const ASTNodePtr trg, 
+    const ASTNodePtr src);
+
 
 struct AliasNode : ASTNode  // var d = a + b;
 {
@@ -241,10 +304,14 @@ struct AliasNode : ASTNode  // var d = a + b;
 
     explicit AliasNode(const std::string& alias_name, const ASTNodePtr src);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_alias_node(const std::string& alias_name, const ASTNodePtr src);
 };
 
 using AliasNodePtr = std::shared_ptr<AliasNode>;
+
+AliasNodePtr create_alias_node(
+    const std::string& alias_name, 
+    const ASTNodePtr src);
+
 
 struct ReturnNode : ASTNode  // return d;
 {
@@ -252,10 +319,11 @@ struct ReturnNode : ASTNode  // return d;
 
     explicit ReturnNode(const ASTNodePtr return_value);
     virtual void accept(ASTVisitor& visitor) override;
-    static ASTNodePtr create_node(const ASTNodePtr return_value);
 };
 
 using ReturnNodePtr = std::shared_ptr<ReturnNode>;
+
+ReturnNodePtr create_return_node(const ASTNodePtr return_value);
 
 // defintion of visitor base class
 class ASTVisitor
