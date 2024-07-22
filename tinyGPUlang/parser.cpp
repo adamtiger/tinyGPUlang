@@ -688,7 +688,7 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
         }
 
         // process the arguments
-        std::vector<VariableNodePtr> arguments;
+        std::vector<ASTNodePtr> arguments;
         while (next_token != ")")
         {
             current_pos = parse_next_token(next_token, line, current_pos);
@@ -705,8 +705,43 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
                 }
 
                 auto node = defined_nodes.at(var_name);
-                arguments.push_back(std::static_pointer_cast<VariableNode>(node));
+                
+                // check if argument is the same as expected type
+                VariableType var_node_type = VariableType::SCALAR;  // alias is a scalar after codegen
+                auto var_node = std::dynamic_pointer_cast<VariableNode>(node);
+                if (var_node)
+                {
+                    var_node_type = var_node->vtype;
+                }
+
+                if (kernel_node->arguments.size() <= arguments.size())
+                {
+                    std::stringstream ss;
+                    ss << "Too much argument in kernel call: ";
+                    ss << kernel_name;
+                    emit_error(ss.str(), start_line, current_pos);
+                }
+
+                if (var_node_type != kernel_node->arguments[arguments.size()]->vtype)
+                {
+                    std::stringstream ss;
+                    ss << "Wrong argument type at ";
+                    ss << var_name;
+                    ss << " for kernel call in: ";
+                    ss << kernel_name;
+                    emit_error(ss.str(), start_line, current_pos);
+                }
+
+                arguments.push_back(node);
             }
+        }
+
+        if (kernel_node->arguments.size() > arguments.size())
+        {
+            std::stringstream ss;
+            ss << "Missing arguments in kernel call: ";
+            ss << kernel_name;
+            emit_error(ss.str(), start_line, current_pos);
         }
 
         // build the alias node
@@ -858,6 +893,13 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
         }
 
         current_pos = parse_next_token(next_token, line, current_pos);
+    }
+
+    if (!waiting_for_arithm_sign && operators.size() > 0)
+    {
+        std::stringstream ss;
+        ss << "Unfinished arithmetic op";
+        emit_error(ss.str(), start_line, 0);
     }
     
     // process the arithmetic expressions

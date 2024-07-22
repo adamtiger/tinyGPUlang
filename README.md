@@ -64,7 +64,7 @@ func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
 - [x] in parser error, report the line and column positions
 - [x] add abs node
 - [x] add output option to cmd
-- [ ] refactor (parser should do more checks for illegal situations, cleaning)
-- [ ] test for edge cases
+- [ ] refactor (cleaning, some more checks)
+- [x] test for edge cases
 - [ ] test on linux
 - [ ] document, write the tutorial

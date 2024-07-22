@@ -145,11 +145,11 @@ KernelNodePtr create_kernel_node(
 struct KernelCallNode : public ASTNode
 {
     KernelNodePtr kernel;
-    std::vector<VariableNodePtr> arguments;
+    std::vector<ASTNodePtr> arguments;
 
     explicit KernelCallNode(
         const KernelNodePtr kernel,
-        const std::vector<VariableNodePtr>& arguments);
+        const std::vector<ASTNodePtr>& arguments);
 
     virtual void accept(ASTVisitor& visitor) override;
 };
@@ -158,7 +158,7 @@ using KernelCallNodePtr = std::shared_ptr<KernelCallNode>;
 
 KernelCallNodePtr create_kernelcall_node(
     const KernelNodePtr kernel,
-    const std::vector<VariableNodePtr>& arguments);
+    const std::vector<ASTNodePtr>& arguments);
 
 
 // arithmetic nodes (binary ops.)

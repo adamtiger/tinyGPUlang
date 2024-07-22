@@ -151,7 +151,7 @@ KernelNodePtr create_kernel_node(
 
 KernelCallNode::KernelCallNode(
     const KernelNodePtr kernel,
-    const std::vector<VariableNodePtr>& arguments
+    const std::vector<ASTNodePtr>& arguments
     ) : ASTNode(), kernel(kernel), 
         arguments(arguments)
 {
@@ -164,7 +164,7 @@ void KernelCallNode::accept(ASTVisitor& visitor)
 
 KernelCallNodePtr create_kernelcall_node(
     const KernelNodePtr kernel, 
-    const std::vector<VariableNodePtr>& arguments)
+    const std::vector<ASTNodePtr>& arguments)
 {
     return std::make_shared<KernelCallNode>(kernel, arguments);
 }
