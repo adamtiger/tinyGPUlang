@@ -353,6 +353,13 @@ ASTPrinter::ASTPrinter()
 void ASTPrinter::save_into_file(const std::string& out_path) const
 {
     std::ofstream out(out_path);
+    if (!out)
+    {
+        std::stringstream ss;
+        ss << "Error while opening ast file ";
+        ss << out_path;
+        emit_error(ss.str());
+    }
     out << ast_as_string;
 }
 
