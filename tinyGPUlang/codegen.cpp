@@ -250,7 +250,9 @@ void NVIRBuilder::apply(KernelCallNode &node)
         llvm_args.push_back(llvm_arg);
     }
 
-    llvm::Value* ret = irb->CreateCall(kernel, llvm_args);
+    llvm::Value* ret = nullptr;     // if void
+    if (node.kernel->return_value)  // if not void
+        ret = irb->CreateCall(kernel, llvm_args);
 
     values.insert({node.ast_id, ret});
 }
@@ -304,6 +306,13 @@ void NVIRBuilder::apply(AddNode &node)
         rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
     }
 
+    if (lhs_val == nullptr || rhs_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In add node, one of the operands are nullptr.";
+        emit_error(ss.str());
+    }
+
     auto* ret = irb->CreateFAdd(lhs_val, rhs_val);
 
     values.insert({node.ast_id, ret});
@@ -335,6 +344,13 @@ void NVIRBuilder::apply(SubNode &node)
     { 
         auto* rhs_ptr = calc_ptr_from_offset(rhs->getType(), rhs, tid);
         rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
+    }
+
+    if (lhs_val == nullptr || rhs_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In sub node, one of the operands are nullptr.";
+        emit_error(ss.str());
     }
 
     auto* ret = irb->CreateFSub(lhs_val, rhs_val);
@@ -370,6 +386,13 @@ void NVIRBuilder::apply(MulNode &node)
         rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
     }
 
+    if (lhs_val == nullptr || rhs_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In mul node, one of the operands are nullptr.";
+        emit_error(ss.str());
+    }
+
     auto* ret = irb->CreateFMul(lhs_val, rhs_val);
 
     values.insert({node.ast_id, ret});
@@ -403,6 +426,13 @@ void NVIRBuilder::apply(DivNode &node)
         rhs_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), rhs_ptr);
     }
 
+    if (lhs_val == nullptr || rhs_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In div node, one of the operands are nullptr.";
+        emit_error(ss.str());
+    }
+
     auto* ret = irb->CreateFDiv(lhs_val, rhs_val);
 
     values.insert({node.ast_id, ret});
@@ -425,6 +455,13 @@ void NVIRBuilder::apply(AbsNode &node)
     {
         auto* x_ptr = calc_ptr_from_offset(x->getType(), x, tid);
         x_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), x_ptr);
+    }
+
+    if (x_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In abs node, the operand is nullptr.";
+        emit_error(ss.str());
     }
 
     auto* ret = irb->CreateIntrinsic(x_val->getType(), llvm::Intrinsic::nvvm_fabs_f, x_val);
@@ -451,6 +488,13 @@ void NVIRBuilder::apply(SqrtNode &node)
         x_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), x_ptr);
     }
 
+    if (x_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In sqrt node, the operand is nullptr.";
+        emit_error(ss.str());
+    }
+
     auto* ret = irb->CreateIntrinsic(x_val->getType(), llvm::Intrinsic::nvvm_sqrt_f, x_val);
 
     values.insert({node.ast_id, ret});
@@ -475,6 +519,13 @@ void NVIRBuilder::apply(Log2Node &node)
         x_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), x_ptr);
     }
 
+    if (x_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In log2 node, the operand is nullptr.";
+        emit_error(ss.str());
+    }
+
     auto* ret = irb->CreateIntrinsic(x_val->getType(), llvm::Intrinsic::nvvm_lg2_approx_f, x_val);
 
     values.insert({node.ast_id, ret});
@@ -497,6 +548,13 @@ void NVIRBuilder::apply(Exp2Node &node)
     {
         auto* x_ptr = calc_ptr_from_offset(x->getType(), x, tid);
         x_val = irb->CreateLoad(llvm::Type::getFloatTy(*ctx), x_ptr);
+    }
+
+    if (x_val == nullptr)
+    {
+        std::stringstream ss;
+        ss << "In exp2 node, the operand is nullptr.";
+        emit_error(ss.str());
     }
 
     auto* ret = irb->CreateIntrinsic(x_val->getType(), llvm::Intrinsic::nvvm_ex2_approx_f, x_val);

@@ -67,5 +67,4 @@ func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
 - [ ] refactor (parser should do more checks for illegal situations, cleaning)
 - [ ] test for edge cases
 - [ ] test on linux
-- [ ] how to set sm?
 - [ ] document, write the tutorial

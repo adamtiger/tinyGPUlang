@@ -24,8 +24,8 @@ int main()
     kernel_info.arguments.push_back(c);
     kernel_info.arguments.push_back(d);
 
-    kernel_info.kernel_name = "calc_complex";
-    kernel_info.kernel_file_path = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\calc_complex.ptx";
+    kernel_info.kernel_name = "edge_cases";
+    kernel_info.kernel_file_path = "C:\\Data\\AI\\works\\tinyGPUlang\\artifacts\\edge_cases.ptx";
 
     execute_cuda_kernel(kernel_info);
 

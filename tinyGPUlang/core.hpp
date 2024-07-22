@@ -35,6 +35,10 @@ private:
     static std::mutex lock_obj;
 };
 
+/**
+ * Checks if a string can be a float.
+ */
+bool is_float_number(const std::string& value_as_str);
 
 /**
     Exchanges the path extension to another one.

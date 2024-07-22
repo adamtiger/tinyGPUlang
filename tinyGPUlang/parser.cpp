@@ -135,7 +135,6 @@ int TGLparser::parse_next_token(std::string& next_token, const std::string& line
         }
 
         // can be the start of keyword or variable (func) name
-        // TODO: simplify
         int first_pos = current_pos;
         bool proceed = true;
         while (proceed)
@@ -180,6 +179,15 @@ void TGLparser::parse_next_kernel(const int start_line, const int start_pos, int
             current_pos = parse_next_token(next_token, cline, current_pos);
             found_func = next_token == "func";
             cont = !(next_token == "" || found_func);
+
+            // check for illegal keyword (because func is expected)
+            if (next_token != "" && next_token != "func" && next_token != "#")
+            {
+                std::stringstream ss;
+                ss << "Illegal keyword: ";
+                ss << next_token;
+                emit_error(ss.str(), current_line, current_pos);
+            }
         }
 
         if (!found_func)
@@ -234,6 +242,36 @@ void TGLparser::parse_next_kernel(const int start_line, const int start_pos, int
 
     // parse kernel body
     parse_kernel_body(kernel, current_line, current_pos, current_line, current_pos);
+
+    // check return type from header and from the body
+    bool found_return = false;
+    for (auto expr : kernel->body)
+    {
+        ReturnNodePtr ret_candidate = std::dynamic_pointer_cast<ReturnNode>(expr);
+        if (ret_candidate)
+        {
+            bool both_void = (ret_candidate->return_value == nullptr && kernel->return_value == nullptr);
+            bool both_float = (ret_candidate->return_value != nullptr && kernel->return_value != nullptr);
+            
+            if (!(both_void || both_float))
+            {
+                std::stringstream ss;
+                ss << "Inconsistent return type in header and actual return type in body of: ";
+                ss << kernel->name;
+                emit_error(ss.str());
+            }
+
+            found_return = true;
+        }
+    }
+
+    if (!found_return)
+    {
+        std::stringstream ss;
+        ss << "Missing return statement in body of: ";
+        ss << kernel->name;
+        emit_error(ss.str());
+    }
 
     // return
     next_line = current_line;
@@ -359,6 +397,8 @@ void TGLparser::parse_kernel_body(KernelNodePtr kernel, const int start_line, co
         int line_expression_start_pos = current_pos;
         auto& cline = all_lines[current_line];
         current_pos = parse_next_token(next_token, cline, current_pos);
+
+        check_paranthesis_in_line(current_line);
         
         // handle if next token is empty (no more expressions in current line)
         if (next_token == "")
@@ -413,6 +453,42 @@ void TGLparser::parse_kernel_body(KernelNodePtr kernel, const int start_line, co
 }
 
 
+void TGLparser::check_paranthesis_in_line(const int start_line)
+{
+    int current_pos = 0;
+    
+    std::string next_token = " ";
+    auto& cline = all_lines[start_line];
+    
+    int num_open_paranthesis = 0;
+    while (next_token != "")
+    {
+        current_pos = parse_next_token(next_token, cline, current_pos);
+
+        if (next_token == "(")
+        {
+            num_open_paranthesis++;
+        }
+        else if (next_token == ")")
+        {
+            num_open_paranthesis--;
+        }
+
+        if (num_open_paranthesis < 0)
+        {
+            break;
+        }
+    }
+
+    if (num_open_paranthesis != 0)
+    {
+        std::stringstream ss;
+        ss << "Paranthesis is not closed properly in the given line.";
+        emit_error(ss.str(), start_line, 0);
+    }
+}
+
+
 VariableNodePtr TGLparser::parse_variable_type(
     const int start_line, 
     const int start_pos, 
@@ -434,7 +510,7 @@ VariableNodePtr TGLparser::parse_variable_type(
     else
     {
         std::stringstream ss;
-        ss << "Expected a f32, but got instead ";
+        ss << "Expected a f32, but got instead: ";
         ss << next_token;
         emit_error(ss.str(), start_line, current_pos);
     }
@@ -450,7 +526,7 @@ VariableNodePtr TGLparser::parse_variable_type(
         if (next_token != "]")
         {
             std::stringstream ss;
-            ss << "Expected a closing bracket ], got instead ";
+            ss << "Expected a closing bracket ], got instead: ";
             ss << next_token;
             emit_error(ss.str(), start_line, current_pos);
         }
@@ -468,8 +544,19 @@ VariableNodePtr TGLparser::parse_variable_type(
     return var;
 }
 
-ConstantNodePtr TGLparser::parse_constant_scalar(const std::string& value_as_string)
+ConstantNodePtr TGLparser::parse_constant_scalar(
+    const std::string& value_as_string, 
+    const int start_line, 
+    const int start_pos)
 {
+    if (!is_float_number(value_as_string))
+    {
+        std::stringstream ss;
+        ss << "Value can not be converted to float: ";
+        ss << value_as_string;
+        emit_error(ss.str(), start_line, start_pos);
+    }
+
     float value = std::atof(value_as_string.c_str());
     return create_constant_node(value, DataType::FLOAT32);
 }
@@ -595,7 +682,7 @@ ASTNodePtr TGLparser::parse_kernel_call_node(
         if (!kernel_node)
         {
             std::stringstream ss;
-            ss << "Expected a kernel node for ";
+            ss << "Expected a kernel node for: ";
             ss << kernel_name;
             emit_error(ss.str(), start_line, current_pos);
         }
@@ -700,20 +787,45 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
     
     current_pos = parse_next_token(next_token, line, current_pos);
 
+    bool waiting_for_arithm_sign = false;  // first, an operand is required;
+
     while (next_token != ";" && next_token != ")" && next_token != "")
     {
         // select arithmetc operand type
         if (next_token == "(")  // complex arithmetic expression
         {
+            if (waiting_for_arithm_sign)
+            {
+                std::stringstream ss;
+                ss << "Expected the next arithmetic operation.";
+                emit_error(ss.str(), start_line, current_pos);
+            }
+
             auto sub_expression = parse_arithmetic_node(start_line, current_pos, current_pos);
             ast_nodes.push_back(sub_expression);
+            waiting_for_arithm_sign = true;
         }
         else if (arithmetic_chars.contains(next_token[0]))  // arithmetic operator sign, e.g. +
         {
+            if (!waiting_for_arithm_sign)
+            {
+                std::stringstream ss;
+                ss << "Expected the next operand.";
+                emit_error(ss.str(), start_line, current_pos);
+            }
+
             operators.push_back(next_token[0]);
+            waiting_for_arithm_sign = false;
         }
         else  // variable or function call
         {
+            if (waiting_for_arithm_sign)
+            {
+                std::stringstream ss;
+                ss << "Expected the next arithmetic operation.";
+                emit_error(ss.str(), start_line, current_pos);
+            }
+
             std::string expr_name = next_token;
 
             int next_pos = parse_next_token(next_token, line, current_pos);
@@ -725,14 +837,24 @@ ASTNodePtr TGLparser::parse_arithmetic_node(
             }
             else if (expr_name.find('.') < std::string::npos)  // can be a constant scalar
             {
-                auto node = parse_constant_scalar(expr_name);
+                auto node = parse_constant_scalar(expr_name, start_line, current_pos);
                 ast_nodes.push_back(node);
             }
             else  // has to be a variable (or an alias)
             {
-                auto node = defined_nodes.at(expr_name);  // TODO: check error!
+                if (!defined_nodes.contains(expr_name))
+                {
+                    std::stringstream ss;
+                    ss << "Undefined variable name (or alias): ";
+                    ss << expr_name;
+                    emit_error(ss.str(), start_line, next_pos);
+                }
+
+                auto node = defined_nodes.at(expr_name);
                 ast_nodes.push_back(node);
             }
+
+            waiting_for_arithm_sign = true;
         }
 
         current_pos = parse_next_token(next_token, line, current_pos);

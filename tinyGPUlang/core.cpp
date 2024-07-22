@@ -22,6 +22,26 @@ int GlobalUUIDGenerator::next_id = 0;
 std::mutex GlobalUUIDGenerator::lock_obj;
 
 
+bool is_float_number(const std::string& value_as_str)
+{
+    bool first_dot_found = false;
+    bool is_float = true;
+    for (auto& c : value_as_str)
+    {
+        if (c == '.' && !first_dot_found)
+        {
+            first_dot_found = true;
+        }
+        else if (!isdigit(c))
+        {
+            is_float = false;
+        }
+    }
+
+    return is_float;
+}
+
+
 std::string replace_extension(
     const std::string& path_to_file,
     const std::string& new_extension)

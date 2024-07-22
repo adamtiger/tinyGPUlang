@@ -62,6 +62,12 @@ protected:
      * be an ASTNode. The kernel body is among curly brackets.
      */
     void parse_kernel_body(KernelNodePtr kernel, const int start_line, const int start_pos, int& next_line, int& next_pos);
+
+    /**
+     * Checks for missing paranthesis in an expression, line.
+     * Stops the process if error found.
+     */
+    void check_paranthesis_in_line(const int start_line);
     
     /**
      * Reads the type of a variable. Type definition can happen in
@@ -73,7 +79,10 @@ protected:
      * Reads a constant value in the code (a value given inside the code).
      * Only floats are supported.
      */
-    ConstantNodePtr parse_constant_scalar(const std::string& value_as_string);
+    ConstantNodePtr parse_constant_scalar(
+        const std::string& value_as_string, 
+        const int start_line, 
+        const int start_pos);
     
     /**
      * Reads the var t = arithm expr.; like code pieces.
