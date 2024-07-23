@@ -12,7 +12,8 @@ static void compile_source_file(
     const std::string& tgl_path, 
     const Target target, 
     const bool save_temps,
-    const std::string& out_folder_path);
+    const std::string& out_folder_path,
+    const std::string& sm_xx);
 
 int main(int argc, char** argv)
 {
@@ -41,6 +42,7 @@ int main(int argc, char** argv)
         Target target = Target::NVIDIA_GPU;
         bool save_temps = false;
         std::string out_folder_path = "";
+        std::string sm_xx = "";
 
         int arg_ix = 1;
         while (arg_ix < argc)
@@ -91,6 +93,11 @@ int main(int argc, char** argv)
                 out_folder_path = argv[arg_ix + 1];
                 arg_ix += 2;
             }
+            else if (arg_str == "--sm")
+            {
+                sm_xx = "sm_" + std::string(argv[arg_ix + 1]);
+                arg_ix += 2;
+            }
             else
             {
                 std::stringstream ss;
@@ -103,7 +110,7 @@ int main(int argc, char** argv)
 
         if (path_to_tgl != "")
         {
-            compile_source_file(path_to_tgl, target, save_temps, out_folder_path);
+            compile_source_file(path_to_tgl, target, save_temps, out_folder_path, sm_xx);
         }
         else
         {
@@ -136,6 +143,7 @@ void print_help_info()
     ss << "    --target      : currently only nvidia is supported (defaults to 'nvidia') \n";
     ss << "    --save-temps  : if present, saves the ll and ast files (defaults to false) \n";
     ss << "    --out         : if present, it has to be a folder path for saving files \n";
+    ss << "    --sm          : if present, it will set the .target directive in the output ptx (default is given by llvm, regularly sm_30) \n";
     ss << "\n";
 
     std::cout << ss.str();
@@ -145,7 +153,8 @@ void compile_source_file(
     const std::string& tgl_path, 
     const Target target, 
     const bool save_temps,
-    const std::string& out_folder_path)
+    const std::string& out_folder_path,
+    const std::string& sm_xx)
 {
     std::cout << "TinyGPUlang compiler \n";
     
@@ -176,5 +185,5 @@ void compile_source_file(
     {
         ptx_generator.build_ir_from_kernel(kernel);
     }
-    ptx_generator.generate_ptx(ptx_file_path, save_temps);
+    ptx_generator.generate_ptx(ptx_file_path, sm_xx, save_temps);
 }

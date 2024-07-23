@@ -64,7 +64,10 @@ func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
 - [x] in parser error, report the line and column positions
 - [x] add abs node
 - [x] add output option to cmd
+- [x] add option for setting compute capability (sm_xx for target arch)
 - [x] refactor
 - [x] test for edge cases
 - [ ] test on linux
+- [ ] add more test cases and files
+- [ ] build system cleaning
 - [ ] document, write the tutorial

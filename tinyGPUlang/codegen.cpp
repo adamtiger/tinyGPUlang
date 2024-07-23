@@ -110,7 +110,7 @@ void PTXGenerator::build_ir_from_kernel(const KernelNodePtr kernel)
     std::cout << "Kernel was built in IR " << func_name << "\n";
 }
 
-void PTXGenerator::generate_ptx(const std::string& ptx_file, const bool save_temps)
+void PTXGenerator::generate_ptx(const std::string& ptx_file, const std::string& sm_xx, const bool save_temps)
 {
     // for further ideas: https://github.com/apache/tvm/blob/main/src/target/llvm/codegen_nvptx.cc
 
@@ -155,7 +155,7 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file, const bool save_tem
     }
 
     // this will make possible to use the right intrinsics when possible
-    auto CPU = "sm_80";  // to set the sm version (https://reviews.llvm.org/D141054)
+    auto CPU = sm_xx;  // to set the sm version (https://reviews.llvm.org/D141054)
     auto Features = "";
 
     llvm::TargetOptions opt;
