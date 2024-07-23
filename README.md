@@ -8,6 +8,8 @@ The goal of this tutorial is to show a *simple example* on how to generate ptx f
 
 For the sake of demonstration a language frontend is also provided. The main idea of the language is to support pointwise (aka elementwise) operations with gpu acceleration.
 
+If you are just curios about the code generation backend, you can jump directly to [The code generator for NVPTX backend](docs/s4_codegen.md) part.
+
 ## What is inside the repo?
 
 - tinyGPUlang: the compiler, creates ptx from tgl (the example language file)
