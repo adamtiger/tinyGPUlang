@@ -1,6 +1,9 @@
 build/*
 artifacts/*
 **vscode/
+*.ptx
+*.ll
+*.ast
 
 # Prerequisites
 *.d
