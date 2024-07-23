@@ -2,60 +2,35 @@
 
 Tutorial on building a gpu compiler backend in LLVM
 
-## The language structure
+## Goals
 
-### Data
+The goal of this tutorial is to show a *simple example* on how to generate ptx from the llvm ir and how to write the IR itself to access cuda features.
 
-Two data structures: scalar and tensor.
-Scalars are single numbers, tensors can be have any dimension
-but they need to have the same size.
+For the sake of demonstration a language frontend is also provided. The main idea of the language is to support pointwise (aka elementwise) operations with gpu acceleration.
 
-Data type: float32 (f32).
+## What is inside the repo?
 
-### Operations
+- tinyGPUlang: the compiler, creates ptx from tgl (the example language file)
+- test: a cuda driver api based test for the generated ptx
+- examples: example tgl files
+- docs: documentation for the tutorial 
 
-The operands can be:
-* scalar, scalar
-* tensor, scalar
-* scalar, tensor
-* tensor, tensor (requires the same shape and type)
+## Tutorial content
 
-Operators:
-* elementwise add
-* elementwise sub
-* elementwise mul
-* elementwise div
-* sqrt
-* exp2
-* log2
-* abs
+1. [Overview](docs/s1_overview.md)
+2. [The TGL language](docs/s2_tgl_language.md)
+3. [Abstract Syntax Tree](docs/s3_ast.md)
+4. [The code generator for NVPTX backend](docs/s4_codegen.md)
+5. [Short overview of the parser](docs/s5_parser.md)
+6. [How to build the project?](docs/s6_build_proj.md)
 
-### Example code
+## References
 
-Files should end with **tgl**. No import of other file is supported.
+- [LLVM documentation for NVPTX backend](https://llvm.org/docs/NVPTXUsage.html)
+- [annotation for global kernel](https://stackoverflow.com/questions/19743861/what-is-llvm-metadata)
+- [TVM NVPTX codegen](https://github.com/apache/tvm/blob/main/src/target/llvm/codegen_nvptx.cc)
 
-```
-func device f32 calc_square_diff(f32 a, f32 b)
-{
-    var e = a - b;     // result is stored in a temporary variable (defined with var)
-    var e2 = e * e;
-    return e2;   
-}
-
-func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
-{
-    var e2 = calc_square_diff(a, b);  // calling device function
-    var me2 = e2 * c;                 // some normalization factor
-    var me2h = me2 * 0.5;             // 0.5 constant scalar, immediate value
-    d = sqrt(me2h);                   // copies the result into d
-
-    // other examples
-    // d = c;  // copy c to d
-    // d = d + a;
-}
-```
-
-### TODO
+## TODO
 
 - [x] compiler should have argument parameters (for command line useage)
 - [x] output llvm assembly to *ll files

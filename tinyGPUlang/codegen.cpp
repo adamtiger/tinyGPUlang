@@ -95,7 +95,6 @@ void PTXGenerator::build_ir_from_kernel(const KernelNodePtr kernel)
     // if the kernel is global, annotation is required
     if (kernel->scope == KernelScope::GLOBAL)
     {
-        // https://stackoverflow.com/questions/19743861/what-is-llvm-metadata
         std::vector<llvm::Metadata*> metadata_fields =
         {
             llvm::ValueAsMetadata::get(kernel_llvm_fn),
@@ -112,8 +111,6 @@ void PTXGenerator::build_ir_from_kernel(const KernelNodePtr kernel)
 
 void PTXGenerator::generate_ptx(const std::string& ptx_file, const std::string& sm_xx, const bool save_temps)
 {
-    // for further ideas: https://github.com/apache/tvm/blob/main/src/target/llvm/codegen_nvptx.cc
-
     // Initialize the target registry etc.
     llvm::InitializeAllTargetInfos();
     llvm::InitializeAllTargets();
