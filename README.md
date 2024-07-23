@@ -34,17 +34,6 @@ If you are just curios about the code generation backend, you can jump directly 
 
 ## TODO
 
-- [x] compiler should have argument parameters (for command line useage)
-- [x] output llvm assembly to *ll files
-- [x] consider inline constants (e.g. var e = c + 4.6f;)
-- [x] remove float16
-- [x] in parser error, report the line and column positions
-- [x] add abs node
-- [x] add output option to cmd
-- [x] add option for setting compute capability (sm_xx for target arch)
-- [x] refactor
-- [x] test for edge cases
 - [ ] test on linux
-- [ ] add more test cases and files
 - [ ] build system cleaning
-- [ ] document, write the tutorial
+- [ ] document (codegen, build)
