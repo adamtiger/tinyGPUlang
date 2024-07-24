@@ -31,7 +31,7 @@ static llvm::Type* get_llvm_type_of_variable(std::unique_ptr<llvm::LLVMContext>&
     {
         if (var->dtype == DataType::FLOAT32)
         {
-            var_type = llvm::Type::getFloatPtrTy(*ctx, 1U);
+            var_type = llvm::Type::getFloatPtrTy(*ctx, 1U);  // address space is 1, refers to global memory in gpu
         }
     }
     return var_type;
@@ -138,15 +138,15 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file, const std::string& 
         }
     }
 
-    auto TargetTriple = "nvptx64-nvidia-cuda";
+    auto target_triple = "nvptx64-nvidia-cuda";
 
     std::string Error;
-    auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+    auto target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
 
     // Print an error and exit if we couldn't find the requested target.
     // This generally occurs if we've forgotten to initialise the
     // TargetRegistry or we have a bogus target triple.
-    if (!Target) {
+    if (!target) {
         llvm::errs() << Error;
         return;
     }
@@ -158,10 +158,10 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file, const std::string& 
     llvm::TargetOptions opt;
     auto RM = std::optional<llvm::Reloc::Model>();
     
-    auto TheTargetMachine = Target->createTargetMachine(
-        TargetTriple, CPU, Features, opt, RM);
+    auto nv_target_machine = target->createTargetMachine(
+        target_triple, CPU, Features, opt, RM);
 
-    compiler_state->gmodule->setDataLayout(TheTargetMachine->createDataLayout());
+    compiler_state->gmodule->setDataLayout(nv_target_machine->createDataLayout());
 
     std::error_code EC;
     llvm::raw_fd_ostream dest(ptx_file, EC, llvm::sys::fs::OF_None);
@@ -177,10 +177,10 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file, const std::string& 
     llvm::legacy::PassManager pass;
     auto FileType = llvm::CGFT_AssemblyFile;
 
-    if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) 
+    if (nv_target_machine->addPassesToEmitFile(pass, dest, nullptr, FileType)) 
     {
         std::stringstream ss;
-        ss << "TheTargetMachine can't emit a file of this type";
+        ss << "nv_target_machine can't emit a file of this type";
         emit_error(ss.str());
     }
 
@@ -222,7 +222,7 @@ void NVIRBuilder::apply(KernelNode& node)
     auto& irb = compiler_state->ir_builder;
 
     tid = irb->CreateIntrinsic(
-        llvm::Type::getVoidTy(*ctx), 
+        llvm::Type::getInt32Ty(*ctx), 
         llvm::Intrinsic::nvvm_read_ptx_sreg_tid_x, 
         {}
     );

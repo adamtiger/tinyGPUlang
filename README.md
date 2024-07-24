@@ -36,4 +36,4 @@ If you are just curios about the code generation backend, you can jump directly 
 
 - [ ] test on linux
 - [ ] build system cleaning
-- [ ] document (codegen, build)
+- [ ] document (build)

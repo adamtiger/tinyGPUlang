@@ -1,5 +1,9 @@
-# implementation of mean squared error with normalization factor
-# type checks and other checks for correctness are required
+# example for more complex operations
+
+func device f32 get_const()
+{
+    return 4.5;
+}
 
 func device f32 scale(f32 x, f32 s)
 {
@@ -13,7 +17,7 @@ func global void calc_complex(f32[] a, f32[] b, f32[] c, f32[] d)
 	var sc = c + c;
 	var e3 = b + (scale(e2, sc) + a) * scale(e, sc) + log2(b);
 	var me2 = e2 * c + ((b / a * c - c) + e) * e3;
-	d = me2 + abs(me2) * c + 4.5;
+	d = me2 + abs(me2) * c + get_const();
 	return;
 }
 
