@@ -1,10 +1,18 @@
 #pragma once
 
+// includes
+#include <memory>
 #include <mutex>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
+
+#include <vector>
+#include <unordered_set>
+#include <unordered_map>
+
 
 /*
     Target types.

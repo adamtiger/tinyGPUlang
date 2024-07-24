@@ -1,7 +1,4 @@
 #include "ast.hpp"
-#include "core.hpp"
-#include <fstream>
-#include <sstream>
 
 ASTNode::ASTNode()
 {

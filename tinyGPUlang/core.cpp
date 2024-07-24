@@ -1,6 +1,4 @@
 #include "core.hpp"
-#include <filesystem>
-#include <iostream>
 
 int GlobalUUIDGenerator::generate_uuid()
 {

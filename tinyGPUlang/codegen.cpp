@@ -1,7 +1,5 @@
 #include "codegen.hpp"
-#include "core.hpp"
 #include "llvm/IR/IntrinsicsNVPTX.h"
-#include <fstream>
 
 PTXGenerator::PTXGenerator()
 {

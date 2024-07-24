@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast.hpp"
+#include "core.hpp"
 
 /*
     LLVM requires a large number of

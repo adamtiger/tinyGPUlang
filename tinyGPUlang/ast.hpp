@@ -1,10 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <memory>
-#include <iostream>
-#include <unordered_set>
+#include "core.hpp"
 
 // forward declaration
 class ASTVisitor;

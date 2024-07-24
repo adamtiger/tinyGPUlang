@@ -1,7 +1,4 @@
 #include "parser.hpp"
-#include "core.hpp"
-#include <fstream>
-#include <iostream>
 
 // static class variables
 std::unordered_set<char> TGLparser::ignored_chars = 
