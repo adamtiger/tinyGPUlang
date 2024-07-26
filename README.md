@@ -26,14 +26,12 @@ If you are just curios about the code generation backend, you can jump directly 
 5. [Short overview of the parser](docs/s5_parser.md)
 6. [How to build the project?](docs/s6_build_proj.md)
 
+## Build
+
+See the [How to build the project?](docs/s6_build_proj.md) documentation for further details.
+
 ## References
 
 - [LLVM documentation for NVPTX backend](https://llvm.org/docs/NVPTXUsage.html)
 - [annotation for global kernel](https://stackoverflow.com/questions/19743861/what-is-llvm-metadata)
 - [TVM NVPTX codegen](https://github.com/apache/tvm/blob/main/src/target/llvm/codegen_nvptx.cc)
-
-## TODO
-
-- [ ] test on linux
-- [ ] build system cleaning
-- [ ] document (build)
