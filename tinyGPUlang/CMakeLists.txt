@@ -1,28 +1,14 @@
 # LLVM related settings
-set(LLVM_DIR "C:\\progs\\llvm\\lib\\cmake\\llvm")
 find_package(LLVM REQUIRED CONFIG)
 
-separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
-add_definitions(${LLVM_DEFINITIONS_LIST})
-llvm_map_components_to_libnames(llvm_libs
-    Analysis
-    Core
-    ExecutionEngine
-    InstCombine
-    Object
-    OrcJIT
-    RuntimeDyld
-    ScalarOpts
-    Support
-    TransformUtils
-    native
-    irreader
-)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
-set(LLVM_INSTALL_DIR_MN "C:\\progs\\llvm")
-set(LLVM_LIB_DIR_MN ${LLVM_INSTALL_DIR_MN}/lib)
-file(GLOB LLVM_LIBRARIES_MN 
-	${LLVM_LIB_DIR_MN}/LLVM*${CMAKE_STATIC_LIBRARY_SUFFIX})
+separate_arguments(LLVM_DEFINITIONS)
+
+message(STATUS "LLVM libraries: ${LLVM_AVAILABLE_LIBS}")
+message(STATUS "LLVM includes: ${LLVM_INCLUDE_DIRS}")
+message(STATUS "LLVM definitions: ${LLVM_DEFINITIONS}")
 
 # finding the source files
 set(TGLC_ROOT ${CMAKE_CURRENT_LIST_DIR})
@@ -56,16 +42,15 @@ add_executable(tglc ${SOURCES} ${HEADERS})
 target_include_directories(tglc PRIVATE ${TGLC_INCLUDE_DIR} ${LLVM_INCLUDE_DIRS})
 
 if (UNIX)
-    target_compile_options(tglc PRIVATE -fPIC -fopenmp)
+    target_compile_options(tglc PRIVATE -fPIC)
 endif()
 
 if (MSVC)
     target_link_options(tglc PUBLIC "$<$<CONFIG:Release>:/NODEFAULTLIB:libcmt.lib>") 
-    target_compile_options(tglc PRIVATE "/fp:fast" "/FA")
-    set_target_properties(tglc PROPERTIES LINK_FLAGS "/PROFILE")
+    target_compile_options(tglc PRIVATE "/fp:fast")
 endif()
 
-target_link_libraries(tglc PRIVATE ${llvm_libs} ${LLVM_LIBRARIES_MN})
+target_link_libraries(tglc PRIVATE ${LLVM_AVAILABLE_LIBS})
 
 if (WIN32)
 	#required to move the dependecies to the exe on windows

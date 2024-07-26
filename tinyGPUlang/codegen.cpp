@@ -29,7 +29,7 @@ static llvm::Type* get_llvm_type_of_variable(std::unique_ptr<llvm::LLVMContext>&
     {
         if (var->dtype == DataType::FLOAT32)
         {
-            var_type = llvm::Type::getFloatPtrTy(*ctx, 1U);  // address space is 1, refers to global memory in gpu
+            var_type = llvm::PointerType::get(llvm::Type::getFloatTy(*ctx), 1U);  // address space is 1, refers to global memory in gpu
         }
     }
     return var_type;
@@ -173,7 +173,7 @@ void PTXGenerator::generate_ptx(const std::string& ptx_file, const std::string& 
     }
 
     llvm::legacy::PassManager pass;
-    auto FileType = llvm::CGFT_AssemblyFile;
+    auto FileType = llvm::CodeGenFileType::AssemblyFile;
 
     if (nv_target_machine->addPassesToEmitFile(pass, dest, nullptr, FileType)) 
     {
