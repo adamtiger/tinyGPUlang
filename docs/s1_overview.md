@@ -36,6 +36,11 @@ tglc.exe --src tgl_code_file_path.tgl --sm 80
 ```
 Sets the target architecture to sm_80.
 
+The usage on linux is very similar (from build/tinyGPUlang):
+```
+./tglc --version
+```
+
 ## Test the ptx
 
 The test folder contains in the main example execution.

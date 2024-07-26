@@ -8,6 +8,8 @@ The compiler has the following dependencies:
 * llvm (with header and libs), tested: llvm-18.1.7
 * cuda, tested: v12.0
 
+Installing cuda is out of the scope of this tutorial.
+
 ## Linux
 
 ### Building LLVM
@@ -65,7 +67,6 @@ cmake -G Ninja -DCMAKE_BUILD_TYPE=Release  -S ..
 
 cmake --build .
 ```
-
 
 ## Windows
 
