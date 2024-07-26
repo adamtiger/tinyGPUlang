@@ -17,8 +17,8 @@ but they need to have the same size in a kernel.
 
 Data type: float32 (f32).
 
-To define a scalar: f32 scalar_name;
-To define a tensor: f32[] tensor_name;
+* To define a scalar: f32 scalar_name;
+* To define a tensor: f32[] tensor_name;
 
 ### Operations
 
@@ -59,7 +59,7 @@ func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
     var e2 = calc_square_diff(a, b);  # calling device function
     var me2 = e2 * c;                 # some normalization factor
     var me2h = me2 * 0.5;             # 0.5 constant scalar, immediate value
-    d = sqrt(me2h);                   # copies the result into d
+    d = sqrt(me2h);                   # calling built-inf cuntion, then copies the result into d
     return;                           # return is compulsory
 
     # other examples

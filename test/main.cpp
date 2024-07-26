@@ -6,7 +6,7 @@ int main()
     auto a = std::make_shared<Tensor>(DataType::FLOAT32, std::vector<int>{2, 3}, true);
     auto b = std::make_shared<Tensor>(DataType::FLOAT32, std::vector<int>{2, 3}, true);
     auto c = std::make_shared<Tensor>(DataType::FLOAT32, std::vector<int>{2, 3}, true);
-    auto d = std::make_shared<Tensor>(DataType::FLOAT32, std::vector<int>{2, 3}, false);
+    auto d = std::make_shared<Tensor>(DataType::FLOAT32, std::vector<int>{2, 3}, false);  // false, because it is an output
 
     std::vector<float> a_data = {2.f, 1.f, 1.5f, 4.f, 5.f, 8.f};
     std::vector<float> b_data = {1.f, 3.f, 4.5f, 2.5f, 6.f, 9.f};
@@ -25,7 +25,7 @@ int main()
     kernel_info.arguments.push_back(d);
 
     kernel_info.kernel_name = "calc_complex";
-    kernel_info.kernel_file_path = "C:\\Data\\AI\\works\\tinyGPUlang\\examples\\calc_complex.ptx";
+    kernel_info.kernel_file_path = "folder_path\\calc_complex.ptx";  // change this for your folder path!
 
     execute_cuda_kernel(kernel_info);
 

@@ -74,21 +74,18 @@ The following is an example for the output of the printer (.ast file):
   name:      a
   var_type:  TENSOR
   data_type: FLOAT32
-  shape:     4, 5, 6, 
 
 -- TensorNode 
   id:        1
   name:      b
   var_type:  TENSOR
   data_type: FLOAT32
-  shape:     4, 5, 6, 
 
 -- TensorNode 
   id:        2
   name:      d
   var_type:  TENSOR
   data_type: FLOAT32
-  shape:     4, 5, 6, 
 
 -- AssignmentNode 
   id:    5
@@ -105,7 +102,7 @@ The following is an example for the output of the printer (.ast file):
   ret:   void
 ```
 
-The connection can be understood by the help of the ideas.
+The connection can be understood by the help of the id values.
 
 The tgl code is in the examples/add_vec.tgl file. Which contains:
 
@@ -113,10 +110,10 @@ The tgl code is in the examples/add_vec.tgl file. Which contains:
 func global void add_vec(f32[] a, f32[] b, f32[] d)
 {
     d = a + b;
-	return;
+    return;
 }
 ```
 
 ## Next
 
-[The code generator for NVPTX backend](docs/s4_codegen.md)
+[The code generator for NVPTX backend](s4_codegen.md)

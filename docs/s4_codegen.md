@@ -17,14 +17,14 @@ To ensure the pointer is for the right type of memory address (global, shared et
 For example a float32 pointer to a global memory address can be created as:
 
 ```
-llvm::Type* glob_f32 = llvm::Type::getFloatPtrTy(*ctx, 1U)  // from codegen.cpp
+llvm::Type* glob_f32 = llvm::PointerType::get(llvm::Type::getFloatTy(*ctx), 1U);  // from codegen.cpp
 ```
 
-The address space can be set in the second argument of getFloatPtrTy.
+The address space can be set in the second argument of PointerType::get. 1 refers to global memory.
 
 ### Specifying a kernel as global
 
-This requiresto set the nvvm.annotations metadata object properly:
+This requires to set the nvvm.annotations metadata object properly:
 
 ```
 std::vector<llvm::Metadata*> metadata_fields =
@@ -45,7 +45,8 @@ This will create the following metadata in IR:
 !1 = !{ptr @glob_kernel, !"kernel", i32 1}
 ```
 
-Here glob_kernel refers to the kernel in kernel_llvm_fn.
+Here glob_kernel refers to the kernel in kernel_llvm_fn. 
+For device functions, no annotation is required because each function is a device function by default.
 
 ### Producing ptx files from the IR
 
@@ -73,14 +74,14 @@ compiler_state->gmodule->setDataLayout(nv_target_machine->createDataLayout());
 Finally, in order to print ptx, the file type should be *assembly*:
 ```
 llvm::legacy::PassManager pass;
-auto FileType = llvm::CGFT_AssemblyFile;
+auto FileType = llvm::CodeGenFileType::AssemblyFile;
 nv_target_machine->addPassesToEmitFile(pass, dest, nullptr, FileType);
 ```
 
 ### GPU specific intrinsics
 
 Several basic operation can be used the same way as for any other cpu device.
-For instance, to add to numbers:
+For instance, to add two numbers:
 
 ```
 auto* ret = irb->CreateFAdd(lhs_val, rhs_val);
@@ -117,4 +118,4 @@ For more examples, see the codegen.cpp file in the tutorial.
 
 ## Next
 
-[How to build the project?](docs/s6_build_proj.md)
+[Short overview of the parser](s5_parser.md)
