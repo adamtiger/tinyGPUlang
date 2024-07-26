@@ -43,10 +43,10 @@ The usage on linux is very similar (from build/tinyGPUlang):
 
 ## Test the ptx
 
-The test folder contains in the main example execution.
+The test folder contains an example execution of the ptx with cuda driver api.
 The kernel name and ptx name should be changed accordingly.
 There is no command-line options for test.
 
 ## Next
 
-[The TGL language](docs/s2_tgl_language.md)
+[The TGL language](s2_tgl_language.md)

@@ -70,4 +70,4 @@ func global void calc_mse(f32[] a, f32[] b, f32[] c, f32[] d)
 
 ## Next
 
-[Abstract Syntax Tree](docs/s3_ast.md)
+[Abstract Syntax Tree](s3_ast.md)
