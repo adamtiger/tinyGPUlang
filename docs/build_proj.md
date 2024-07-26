@@ -90,7 +90,7 @@ Then build the project, this can take a while (more than an hour) to finish:
 cmake --build . --config Release
 ```
 
-Install the libraries (this requires admininstrator mode):
+Install the libraries (this requires administrator mode):
 ```
 cmake --install .
 ```
