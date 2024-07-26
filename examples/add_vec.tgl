@@ -2,5 +2,5 @@
 func global void add_vec(f32[] a, f32[] b, f32[] d)
 {
     d = a + b;
-	return;
+    return;
 }
