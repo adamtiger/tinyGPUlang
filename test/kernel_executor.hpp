@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <cstring>
 #include <iostream>
 
 enum class VariableType

@@ -25,7 +25,12 @@ target_include_directories(test PRIVATE ${TEST_INCLUDE_DIR} ${CUDA_INCLUDE_DIRS}
 # we need to link the cuda device library, assume they are in the same folder
 # CUDA_LIBRARIES: path to cudart library
 get_filename_component(CUDA_LIB_PATH "${CUDA_LIBRARIES}" DIRECTORY)
-target_link_libraries(test PRIVATE ${CUDA_LIB_PATH}/cuda.lib)
+if (UNIX) 
+    target_link_libraries(test PRIVATE cuda cudart)
+elseif (WIN32) 
+    target_link_libraries(test PRIVATE ${CUDA_LIB_PATH}/cuda.lib)
+endif()
+
 
 if (UNIX)
     target_compile_options(test PRIVATE -fPIC -fopenmp)
